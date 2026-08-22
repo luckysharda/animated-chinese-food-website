@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ═══════════════════════════════════════════════════════════════════
+   UMAMI // 拉麵 — design tokens
+   Reconstructed from frame analysis. See DESIGN.md.
+   Governing rule: amber is METERED. It never exceeds ~1.5% of the
+   pixels in any viewport, and the list of things allowed to carry it
+   is closed — see the accent block below.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── surfaces: near-black with a cold blue bias ── */
+  --color-ink-900: #07090c;
+  --color-ink-800: #0b0f14;
+  --color-ink-700: #101720;
+  --color-ink-600: #151e2a;
+  --color-ink-500: #1c2735;
+  --color-line-100: #2a3543;
+  --color-line-200: #3a4757;
+
+  /* ── text ── */
+  --color-text-hi: #ffffff;
+  --color-text-mid: #b7c2ce;
+  --color-text-low: #6b7887;
+  --color-text-dim: #414d5b;
+
+  /* ── accents ──
+     amber-400 : the // device, numerals, selected state, one CTA
+     ember-*   : heat glow, photographic/lighting values only
+     crimson   : exactly two places — status dot, PRC flag plate     */
+  --color-amber-400: #ffc53d;
+  --color-amber-500: #f5a314;
+  --color-ember-500: #ff6b18;
+  --color-ember-700: #c22b0e;
+  --color-crimson: #e01b24;
+  --color-jade: #7fbf6a;
+
+  /* ── type ── */
+  --font-display: var(--font-anton), Impact, "Arial Narrow Bold", sans-serif;
+  --font-jp: var(--font-noto-jp), "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-mincho: var(--font-mincho), "Hiragino Mincho ProN", serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── motion ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 420ms;
+  --dur-slow: 900ms;
+
+  /* ── layout ── */
+  --container: 1440px;
+  --gutter-l: 12px;
+  --gutter-r: 4.8vw;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ═══════════════ base ═══════════════ */
+html {
+  background: var(--color-ink-800);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink-800);
+  color: var(--color-text-mid);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+/* Lenis drives scroll; keep native smooth-scroll out of the way. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+::selection { background: var(--color-amber-400); color: var(--color-ink-900); }
+:focus-visible {
+  outline: 2px solid var(--color-amber-400);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ═══════════════ signature devices ═══════════════ */
+
+/* The mono micro-label. Everything that is DATA rather than prose. */
+@utility micro {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-low);
+}
+@utility micro-xs {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.2;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text-low);
+}
+
+/* The amber numeric register — its own register, set in the DISPLAY face.
+   tabular-nums is not optional: without it every tick reflows its neighbours. */
+@utility numeric {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-amber-400);
+  text-shadow: 0 0 12px rgb(255 197 61 / 0.55), 0 0 40px rgb(255 107 24 / 0.25);
+}
+@utility numeric-unit {
+  font-size: 0.52em;
+  vertical-align: 0.42em;
+  letter-spacing: 0.02em;
+}
+
+/* The // device. Amber, oblique, ~1.1x the words beside it. */
+@utility slashes {
+  display: inline-block;
+  color: var(--color-amber-400);
+  font-family: var(--font-display);
+  transform: skewX(-12deg);
+  text-shadow: 0 0 12px rgb(255 197 61 / 0.55);
+}
+
+@utility glow-box {
+  box-shadow:
+    0 0 0 1px rgb(255 197 61 / 0.6),
+    0 0 28px -6px rgb(255 197 61 / 0.45),
+    inset 0 0 40px -20px rgb(255 197 61 / 0.5);
+}
+
+/* Text stays legible over photography. Every full-bleed image gets this. */
+@utility scrim {
+  background: linear-gradient(
+    180deg,
+    rgb(7 9 12 / 0.75) 0%,
+    transparent 35%,
+    transparent 60%,
+    rgb(7 9 12 / 0.9) 100%
+  );
+}
+
+/* CONTENT FRAME — centred container. Cards, grids, forms. */
+@utility frame-content {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 64px);
+}
+
+/* ═══════════════ reduced motion ═══════════════
+   Pins and scrubs are killed at the component level by reading this
+   media query in JS; this block handles pure-CSS motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
