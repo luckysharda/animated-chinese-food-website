@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editors / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# tooling caches
+.turbo/
+.eslintcache
+*.log
+
+# Generated placeholder imagery is COMMITTED on purpose, so a fresh clone runs
+# without ffmpeg. If you swap in real photography and would rather keep it out of
+# git, uncomment these — and remember `npm run assets` will not bring it back.
+# /public/hero/sequence/
+# /public/video/
