@@ -45,7 +45,7 @@ export const hero = {
     {
       id: "lockup",
       from: 0.0,
-      to: 0.07,
+      to: 0.145,
       kicker: "SLOW-SIMMERED // No.01",
       jpLine1: "旨味",
       jpLine2: "拉麵",
@@ -54,8 +54,8 @@ export const hero = {
     },
     {
       id: "dossier",
-      from: 0.1,
-      to: 0.29,
+      from: 0.185,
+      to: 0.285,
       kicker: "仕様書 // SPECIFICATION",
       jpTitle: "仕様書",
       no: "02",
@@ -75,8 +75,8 @@ export const hero = {
     },
     {
       id: "steam",
-      from: 0.35,
-      to: 0.55,
+      from: 0.325,
+      to: 0.428,
       kicker: "章 // CHAPTER THREE",
       no: "03",
       jpInline: "湯気",
@@ -88,13 +88,22 @@ export const hero = {
     },
     {
       id: "dossier-reprise",
-      from: 0.58,
+      from: 0.468,
       to: 0.74,
       reprise: "dossier",
     },
   ],
-  /** Hard cuts in the plate sequence — media time, not a CSS scale. */
-  cuts: [0, 0.08, 0.3, 0.44, 0.62],
+  /**
+   * The real cut points in assets-src/hero-source.mp4, detected with ffmpeg's
+   * scene filter, expressed as hero progress. Five setups:
+   *   0.000  hands placing chashu into the bowl
+   *   0.163  the chef at the stove, steam off the pot
+   *   0.304  beauty shot, the finished bowl on wet stone
+   *   0.446  hands presenting the bowl to camera
+   *   0.754  the exploded view — the climax is in the footage
+   * Every one of these lands while the caption deck is in a blank window.
+   */
+  cuts: [0, 0.163, 0.304, 0.446, 0.754],
   instrument: {
     leftPill: "SCRUB ACTIVE",
     rightGroups: ["TEMP", "STEAM", "CH", "FRAME"],

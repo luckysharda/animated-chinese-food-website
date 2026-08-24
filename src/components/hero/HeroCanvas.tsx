@@ -12,8 +12,9 @@
  *     sized to the stage times a DPR clamped to 2 (above 2 you pay 3x the fill
  *     rate for a difference nobody sees), and the image is scaled by
  *     max(w/iw, h/ih) and centred — the same maths `object-fit: cover` uses.
- *   · p 0 → 0.75 maps to frame 1 → 120. From 0.75 the 3D bowl owns the stage, so
- *     the whole plate layer cross-fades out over 0.75 → 0.82 and is taken out of
+ *   · p 0 → 1 maps to frame 1 → 120: the footage runs the whole pin, and its own
+ *     exploded-view shot is the climax. When WEBGL_CLIMAX is on instead, the
+ *     plate cross-fades out over 0.75 → 0.82 and is taken out of
  *     the compositor with visibility:hidden once it is invisible.
  *   · Reduced motion: the final frame is drawn once and the scrub is ignored
  *     outright — 119 images are never requested.
@@ -27,16 +28,24 @@ import Image from "next/image";
 import { assets, heroFrame, HERO_FRAME_COUNT } from "@/data/assets";
 import { prefersReducedMotion } from "@/hooks/useReducedMotion";
 import type { HeroTick } from "./Hero";
+// Only used when the WebGL bowl takes the climax — see ./config.
+import { HANDOFF_FROM, HANDOFF_TO, WEBGL_CLIMAX } from "./config";
 
 export interface HeroCanvasHandle {
   update(t: HeroTick): void;
 }
 
-/** The plate sequence hands the stage to the 3D bowl here. */
-const HANDOFF_FROM = 0.75;
-const HANDOFF_TO = 0.82;
 /** Parallel image requests. Enough to saturate the connection, not enough to starve it. */
 const CONCURRENCY = 10;
+
+/**
+ * On a narrow screen the sequence is decimated rather than dropped: every 4th
+ * frame is 30 images instead of 120, which is ~2.6MB rather than ~10.3MB, and
+ * the scrub still tracks the finger. Requested frames are snapped onto the
+ * loaded ladder so a frame that was never fetched can never be asked for.
+ */
+const MOBILE_STEP = 4;
+const MOBILE_MAX_WIDTH = 768;
 
 function clamp01(v: number): number {
   return v < 0 ? 0 : v > 1 ? 1 : v;
@@ -63,6 +72,7 @@ export default function HeroCanvas({
   const pendingRef = useRef(1);
   const readyRef = useRef(false);
   const staticRef = useRef(false);
+  const stepRef = useRef(1);
   const opacityRef = useRef(-1);
 
   /* ── painting ─────────────────────────────────────────────────────────── */
@@ -111,7 +121,7 @@ export default function HeroCanvas({
 
   const update = useCallback(
     (t: HeroTick) => {
-      const n = staticRef.current
+      let n = staticRef.current
         ? HERO_FRAME_COUNT
         : t.frame < 1
           ? 1
@@ -119,16 +129,27 @@ export default function HeroCanvas({
             ? HERO_FRAME_COUNT
             : t.frame;
 
+      // Snap onto the ladder that was actually loaded (a no-op at step 1).
+      const step = stepRef.current;
+      if (step > 1 && !staticRef.current) {
+        const i = Math.min(HERO_FRAME_COUNT - 1, Math.round((n - 1) / step) * step);
+        n = i + 1;
+      }
+
       pendingRef.current = n;
       if (readyRef.current && n !== paintedRef.current) drawFrame(n);
 
       const wrap = wrapRef.current;
       if (!wrap) return;
 
-      // Under reduced motion the plate is the only media there is — never fade it.
-      const o = staticRef.current
-        ? 1
-        : 1 - clamp01((t.p - HANDOFF_FROM) / (HANDOFF_TO - HANDOFF_FROM));
+      // The plate fades out ONLY to clear the stage for the WebGL bowl. With the
+      // footage owning the climax it must stay up all the way to p 1 — the
+      // exploded view is in the last thirty frames. Under reduced motion the
+      // plate is the only media there is, so it never fades either.
+      const o =
+        staticRef.current || !WEBGL_CLIMAX
+          ? 1
+          : 1 - clamp01((t.p - HANDOFF_FROM) / (HANDOFF_TO - HANDOFF_FROM));
 
       if (Math.abs(o - opacityRef.current) > 0.002) {
         opacityRef.current = o;
@@ -168,6 +189,16 @@ export default function HeroCanvas({
     // render still reports the server snapshot, and this runs before that lands.
     const reduce = prefersReducedMotion();
     staticRef.current = reduce;
+    const step =
+      !reduce && window.innerWidth < MOBILE_MAX_WIDTH ? MOBILE_STEP : 1;
+    stepRef.current = step;
+
+    // 0, step, 2*step … plus the final frame, which carries the exploded view
+    // and must be present whatever the step leaves off.
+    const queue: number[] = [];
+    for (let i = 0; i < HERO_FRAME_COUNT; i += step) queue.push(i);
+    if (queue[queue.length - 1] !== HERO_FRAME_COUNT - 1) queue.push(HERO_FRAME_COUNT - 1);
+    const total = queue.length;
 
     let cancelled = false;
     let hideTimer: number | undefined;
@@ -215,21 +246,21 @@ export default function HeroCanvas({
     let done = 0;
 
     const report = () => {
-      const ratio = done / HERO_FRAME_COUNT;
+      const ratio = done / total;
       const pct = Math.round(ratio * 100);
       if (pctRef.current) pctRef.current.textContent = `${String(pct).padStart(2, "0")}%`;
       if (barRef.current) barRef.current.style.transform = `scaleX(${ratio.toFixed(4)})`;
     };
 
     const pump = () => {
-      if (cancelled || issued >= HERO_FRAME_COUNT) return;
-      const index = issued;
+      if (cancelled || issued >= total) return;
+      const index = queue[issued];
       issued += 1;
       load(index, () => {
         if (cancelled) return;
         done += 1;
         report();
-        if (done === HERO_FRAME_COUNT) finish();
+        if (done === total) finish();
         else pump();
       });
     };

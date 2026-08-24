@@ -33,8 +33,15 @@ runtime. There is no `.glb`, no HDRI, no texture fetch.
 
 ```bash
 npm install
-npm run assets      # generate the placeholder imagery — needs ffmpeg on PATH
 npm run dev         # http://localhost:3000
+```
+
+Every asset is committed, so a fresh clone runs without ffmpeg. Two scripts rebuild
+them if you want to:
+
+```bash
+npm run hero        # rebuild the hero scrub sequence from assets-src/hero-source.mp4
+npm run assets      # regenerate the placeholder imagery for everything else
 ```
 
 ```bash
@@ -44,77 +51,66 @@ npm run lint
 npx tsc --noEmit    # typecheck
 ```
 
-`npm run assets` is only needed if `/public` is empty or you want to regenerate it. The
-generated files are committed, so a fresh clone runs without ffmpeg.
-
 ---
 
-## ASSETS — everything in `/public` is a placeholder
+## ASSETS
 
-**Every image and video in `/public` is a procedurally generated placeholder.** None of it
-is photography. None of it contains a bowl, a noodle, a chef or a room. They are made by
-`scripts/gen-assets.mjs`, which shells out to **ffmpeg** and composites, per file:
+### The hero is real footage
 
-- a base fill of `#07090C`,
-- one bounded warm radial pool (`ember-500` / `amber-500` / `ember-700`) screened in
-  **below** the centre — the key light, 2700–3000K, from below-front,
-- a smaller, much weaker cool pool near a top corner — the 5600–6500K room ambient,
-- film grain, a vignette, and a slight contrast lift with the brightness pulled down.
+`assets-src/hero-source.mp4` is a 10s, 24fps clip of a chef building a bowl. It is
+exploded into the hero's scrub sequence by `npm run hero`:
 
-The result is an abstract low-key light plate: **correct in tone and empty of subject.** It
-holds the site's lighting brief — the room is cold, one pool of light is warm, >80% of the
-pixels sit under 20% luminance — so the layout, the scrims, the text contrast and the
-scrub all read truthfully, while making no attempt to fake a photograph. A placeholder that
-looks like a bad photo is worse than one that obviously isn't a photo.
+```
+npm run hero                       # rebuild from assets-src/hero-source.mp4
+npm run hero -- /path/to/clip.mp4  # or from any other clip
+```
 
-The seeding is deterministic (FNV-1a over the filename), so the script produces byte-stable
-output run to run.
+That script does three things worth knowing about:
 
-### The manifest
+- **Watermark removal.** The generator that produced the clip stamps a stationary
+  four-point sparkle in the lower right. `delogo` interpolates it away from the box
+  border, which is invisible against the dark stone behind it. It runs at source
+  resolution, before any scaling.
+- **A grade.** The footage is lit brighter than this site is. The brief is a cold
+  room with a single warm pool on the food, so the grade pulls the midtones down,
+  pushes a little blue into the shadows, and leaves the highlights on the bowl
+  alone. Measured: median luminance 44–95 → 12–45, with p95 held around 150.
+- **120 frames at 1600×900**, JPEG q6 — about 84KB each, 10.3MB for the set. q6 is
+  indistinguishable from q4 at 2× zoom on this footage and 22% smaller.
 
-`src/data/assets.ts` is the single source of truth for every asset path on the site. No
-component hardcodes a path. What it declares:
+**The cut points are real.** ffmpeg's scene filter puts them at p 0.163 / 0.304 /
+0.446 / 0.754, and the caption deck's blank windows are tuned so that every cut
+lands while the left gutter is empty. The last cut, at 0.754, is the clip's own
+exploded-view shot — chashu, ajitama, nori, a noodle nest and broth droplets
+suspended over the bowl. That is the hero's climax, and it is why the three.js
+bowl is off by default (see `WEBGL_CLIMAX` in `src/components/hero/config.ts`).
 
-| Path | Count | Size | What it stands in for |
-|---|---|---|---|
-| `/hero/sequence/frame_0001.jpg` … `frame_0120.jpg` | 120 | 1600×900 | the hero scrub sequence |
-| `/hero/poster.jpg` | 1 | 1600×900 | first-paint poster behind the canvas |
-| `/hero/explode-still.jpg` | 1 | 1600×900 | no-WebGL / reduced-motion fallback for the 3D bowl |
-| `/bowls/{tonkotsu,mala,shoyu}.jpg` | 3 | 1600×1067 (3:2) | the `// 01` lineup cards |
-| `/toppings/*.jpg` | 8 | 400×400 | the `// 02` configurator chips |
-| `/ingredients/ing-01.jpg` … `ing-09.jpg` | 9 | 1200×900 | the `// 05` bento |
-| `/story/era-01.jpg` … `era-04.jpg` | 4 | 1200×800 | the `// 07` timeline |
-| `/video/{simmer-01,simmer-02,craft-01,craft-02,craft-03}.mp4` | 5 | 1280×720, 5s loop | ambient loops |
-| `/video/*-poster.jpg` | 5 | 1280×720 | their posters |
+**Payload by environment**, verified in headless Chrome:
 
-### Swapping in real photography
+| | frames fetched | approx |
+|---|---|---|
+| desktop | 120 | 10.3MB |
+| narrow (<768px) | 31 | ~2.6MB — every 4th frame, plus the final one |
+| `prefers-reduced-motion` | 1 | 84KB — the end state, no scrub built |
 
-**Option A — keep the names.** Drop real files into `/public` at exactly the paths above and
-delete nothing else. Do not run `npm run assets` again or it will overwrite them. Nothing in
-`src/` changes.
+### Everything else in `/public` is a placeholder
 
-**Option B — point the manifest somewhere else.** Edit `src/data/assets.ts` — change the
-`assets` object's paths, or change the `heroFrame(i)` template to a CDN URL. Every component
-reads through it, so one edit moves the whole site. If you host frames remotely, add the host
-to `images.remotePatterns` in `next.config.ts`.
+Every other image and video is procedurally generated by `scripts/gen-assets.mjs`,
+which shells out to ffmpeg and composites a cold near-black room with one warm pool
+of light, grain and a vignette — the lighting brief with no subject in it. They are
+correct in tone and empty of content, which is what a placeholder should be.
 
-**The hero sequence is the one with a hard requirement.** It needs **120 sequential frames,
-named `frame_0001.jpg` through `frame_0120.jpg`**, all the same dimensions, in
-`/public/hero/sequence/`. `HERO_FRAME_COUNT` and `heroFrame()` in `src/data/assets.ts` define
-the count and the zero-padding; change the count there and the canvas follows, but every frame
-must exist — the hero preloads the entire sequence before it will paint, so a 404 in the middle
-stalls the loader.
+```
+npm run assets     # regenerate them — needs ffmpeg on PATH
+```
 
-What the frames should actually contain, if you are shooting them: this is a **cut sequence,
-not one continuous push-in.** Four or more camera setups inside the single scrub, hard cuts on
-frame boundaries, the subject moving *within* each setup so it reads as media time advancing
-rather than a CSS `scale()` on a still. Progress `0 → 0.75` maps to frames `1 → 120`; from
-`0.75` the 3D bowl takes the stage and the plate layer cross-fades out by `0.82`.
+That script **will not touch `public/hero/sequence`** while a real 120-frame
+sequence is present; overwriting the hero with a procedural push-in would be a
+silent, expensive mistake. Use `npm run hero` to rebuild the hero.
 
-Video files want `muted playsinline preload="none"` and a poster — `src/components/ui/LazyVideo.tsx`
-already enforces that, so replacing the `.mp4` files is enough.
-
----
+To swap in real photography for the rest, drop files with the same names into
+`/public` — the manifest in `src/data/assets.ts` is the only place paths live, so
+nothing in the component tree needs to change.
 
 ## Scroll architecture
 

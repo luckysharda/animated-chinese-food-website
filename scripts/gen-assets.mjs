@@ -14,7 +14,7 @@
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, rm, readdir } from "node:fs/promises";
 import path from "node:path";
 
 const run = promisify(execFile);
@@ -92,21 +92,31 @@ async function main() {
   const t0 = Date.now();
   console.log("Generating placeholder assets with ffmpeg…\n");
 
-  // ── hero: a 120-frame push-in, the scrub sequence ──
-  const heroBase = path.join(PUB, "hero/_base.jpg");
-  await plate(heroBase, 2000, 1125, "hero-plate", { warm: "0xFF6B18", warmA: 0.72, coolA: 0.26, vig: 3.0, q: 2 });
-  await rm(path.join(PUB, "hero/sequence"), { recursive: true, force: true });
-  await mkdir(path.join(PUB, "hero/sequence"), { recursive: true });
-  await run("ffmpeg", [
-    "-hide_banner", "-loglevel", "error", "-y", "-loop", "1", "-i", heroBase, "-frames:v", "120",
-    "-vf", "zoompan=z='1+0.42*on/119':d=1:x='iw/2-(iw/zoom/2)':y='ih/1.85-(ih/zoom/1.85)':s=1600x900:fps=25,noise=alls=6:allf=t,format=yuv420p",
-    "-q:v", "5", path.join(PUB, "hero/sequence/frame_%04d.jpg"),
-  ]);
-  console.log("  hero/sequence  120 frames @ 1600x900");
-
-  await plate(path.join(PUB, "hero/poster.jpg"), 1600, 900, "hero-poster", { warm: "0xFF6B18", warmA: 0.7, q: 3 });
-  await plate(path.join(PUB, "hero/explode-still.jpg"), 1600, 900, "hero-explode", { warm: "0xFFC53D", warmA: 0.88, coolA: 0.12, vig: 2.6, q: 3 });
-  await rm(heroBase, { force: true });
+  // ── hero ──
+  // The hero sequence comes from REAL FOOTAGE and is built by a different
+  // script (npm run hero). Regenerating a procedural push-in over the top of
+  // it would silently destroy the real hero, so this script never writes to
+  // public/hero once a real sequence is present.
+  const heroSeq = path.join(PUB, "hero/sequence");
+  let heroFrames = 0;
+  try { heroFrames = (await readdir(heroSeq)).filter((f) => f.endsWith(".jpg")).length; } catch {}
+  if (heroFrames >= 120) {
+    console.log(`  hero           ${heroFrames} real frames present — skipped (run \`npm run hero\` to rebuild)`);
+  } else {
+    const heroBase = path.join(PUB, "hero/_base.jpg");
+    await plate(heroBase, 2000, 1125, "hero-plate", { warm: "0xFF6B18", warmA: 0.72, coolA: 0.26, vig: 3.0, q: 2 });
+    await rm(heroSeq, { recursive: true, force: true });
+    await mkdir(heroSeq, { recursive: true });
+    await run("ffmpeg", [
+      "-hide_banner", "-loglevel", "error", "-y", "-loop", "1", "-i", heroBase, "-frames:v", "120",
+      "-vf", "zoompan=z='1+0.42*on/119':d=1:x='iw/2-(iw/zoom/2)':y='ih/1.85-(ih/zoom/1.85)':s=1600x900:fps=25,noise=alls=6:allf=t,format=yuv420p",
+      "-q:v", "5", path.join(heroSeq, "frame_%04d.jpg"),
+    ]);
+    await plate(path.join(PUB, "hero/poster.jpg"), 1600, 900, "hero-poster", { warm: "0xFF6B18", warmA: 0.7, q: 3 });
+    await plate(path.join(PUB, "hero/explode-still.jpg"), 1600, 900, "hero-explode", { warm: "0xFFC53D", warmA: 0.88, coolA: 0.12, vig: 2.6, q: 3 });
+    await rm(heroBase, { force: true });
+    console.log("  hero/sequence  120 placeholder frames @ 1600x900");
+  }
 
   // ── bowls, toppings, ingredients, story ──
   const jobs = [

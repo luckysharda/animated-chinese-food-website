@@ -14,7 +14,8 @@
  *   children that write it straight to the DOM. No scroll-derived value is ever
  *   allowed into React state: at 60fps that is 60 renders a second, and the
  *   whole hero would fall over. The one exception is a single boolean, flipped
- *   once, that mounts the 3D bowl before it is needed.
+ *   once, that mounts the 3D bowl before it is needed — off by default now,
+ *   see WEBGL_CLIMAX, because the footage supplies its own exploded view.
  *
  * THE TWO GUTTERS
  *   Left  0.8% → 21% of the viewport, welded to a 12px inset  (HeroCaptionDeck)
@@ -35,6 +36,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { HERO_FRAME_COUNT } from "@/data/assets";
 import { useScrollScrub } from "@/hooks/useScrollScrub";
+import { WEBGL_CLIMAX } from "./config";
 import { prefersReducedMotion } from "@/hooks/useReducedMotion";
 import HeroCanvas, { type HeroCanvasHandle } from "./HeroCanvas";
 import HeroCaptionDeck, { type HeroCaptionDeckHandle } from "./HeroCaptionDeck";
@@ -46,11 +48,11 @@ import HeroRuler, { type HeroRulerHandle } from "./HeroRuler";
 export interface HeroTick {
   /** Raw scrub progress, 0..1. */
   p: number;
-  /** 1..120 — the plate sequence, mapped off p 0 → 0.75. */
+  /** 1..120 — the plate sequence, mapped off the WHOLE pin. */
   frame: number;
-  /** 50 → 92 across p 0.10 → 0.30, then held. */
+  /** 50 → 92 across p 0.19 → 0.28 — inside the dossier card — then held. */
   temp: number;
-  /** 0.60 → 1.42 across p 0.35 → 0.55, then held. */
+  /** 0.60 → 1.42 across p 0.33 → 0.42 — inside the steam card — then held. */
   steam: number;
   /** 1..3. */
   chapter: number;
@@ -105,10 +107,12 @@ export default function Hero(): React.ReactElement {
     (p: number) => {
       const t = tickRef.current;
       t.p = p;
-      t.frame = 1 + Math.round(seg(p, 0, 0.75) * (HERO_FRAME_COUNT - 1));
-      t.temp = TEMP_FROM + seg(p, 0.1, 0.3) * (TEMP_TO - TEMP_FROM);
-      t.steam = STEAM_FROM + seg(p, 0.35, 0.55) * (STEAM_TO - STEAM_FROM);
-      t.chapter = p < 0.1 ? 1 : p < 0.35 ? 2 : 3;
+      t.frame = 1 + Math.round(p * (HERO_FRAME_COUNT - 1));
+      t.temp = TEMP_FROM + seg(p, 0.19, 0.28) * (TEMP_TO - TEMP_FROM);
+      t.steam = STEAM_FROM + seg(p, 0.33, 0.42) * (STEAM_TO - STEAM_FROM);
+      // 3 falls back to 2 when the dossier card returns — that is truthful,
+      // the reference reprises chapter 02 rather than counting onward.
+      t.chapter = p < 0.185 ? 1 : p < 0.325 ? 2 : p < 0.468 ? 3 : 2;
 
       canvasRef.current?.update(t);
       deckRef.current?.update(t);
@@ -119,13 +123,13 @@ export default function Hero(): React.ReactElement {
       explodeRef.current.v = seg(p, 0.75, 1);
 
       // One state change for the whole pin: bring the scene in before it is due.
-      if (!mountedBowlRef.current && p > 0.45 && !prefersReducedMotion()) {
+      if (WEBGL_CLIMAX && !mountedBowlRef.current && p > 0.45 && !prefersReducedMotion()) {
         mountedBowlRef.current = true;
         setBowlMounted(true);
       }
 
       const el = bowlRef.current;
-      if (el) {
+      if (WEBGL_CLIMAX && el) {
         const o = seg(p, 0.72, 0.79);
         if (Math.abs(o - bowlOpacityRef.current) > 0.002) {
           bowlOpacityRef.current = o;
