@@ -210,12 +210,14 @@ export default function Craft(): React.ReactElement {
                   {/* the caption, bottom-left of its own image */}
                   <div className="absolute bottom-0 left-0 z-20 w-full px-6 pb-14 md:px-9 md:pb-20">
                     <Reveal>
-                      <h3 className="font-jp text-[clamp(1.6rem,3.2vw,2.75rem)] font-black leading-[0.95] tracking-[-0.02em] text-text-hi">
-                        {panel.jp}
+                      <h3 className="font-display text-[clamp(1.7rem,3.4vw,2.9rem)] uppercase leading-[0.92] tracking-[-0.01em] text-text-hi">
+                        {panel.name}
                       </h3>
                     </Reveal>
                     <Reveal delay={0.07}>
-                      <Micro className="mt-3 block text-text-mid!">{panel.name}</Micro>
+                      <p className="mt-3 font-jp text-[15px] font-bold leading-none tracking-[0.06em] text-text-low">
+                        {panel.jp}
+                      </p>
                     </Reveal>
                     <Reveal delay={0.14}>
                       <p className="mt-4 max-w-[38ch] text-[13px] leading-[1.65] text-text-mid md:text-[14px]">

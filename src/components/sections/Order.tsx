@@ -464,7 +464,10 @@ export default function Order(): React.ReactElement {
                   <BracketFrame className="px-6 py-10 sm:px-10" corners="all">
                     <div className="flex flex-col items-center text-center">
                       <Micro>{ui.receiptLatin}</Micro>
-                      <p className="mt-3 font-jp text-[clamp(1.75rem,4vw,2.75rem)] font-black leading-[0.95] text-text-hi">
+                      <p className="mt-3 font-display text-[clamp(1.8rem,4.1vw,2.85rem)] uppercase leading-[0.92] text-text-hi">
+                        {ui.receiptLatin}
+                      </p>
+                      <p className="mt-2 font-jp text-[14px] font-bold leading-none tracking-[0.06em] text-text-low">
                         {ui.receiptTitle}
                       </p>
 

@@ -108,12 +108,12 @@ export default function Nav(): React.ReactElement {
 
       {/* ── left mark: instrument inset, 12px ── */}
       <div className="absolute left-3 top-1/2 flex -translate-y-1/2 flex-col leading-none">
-        <span className="font-jp text-[15px] font-bold tracking-[0.14em] text-text-hi">
-          {site.jp}
-        </span>
-        <span className="micro-xs mt-[3px] text-text-low">
-          {latinLeft} <span className="slashes text-[8px]">{"//"}</span>{" "}
+        <span className="font-display text-[16px] uppercase leading-none tracking-[0.06em] text-text-hi">
+          {latinLeft} <span className="slashes text-[13px]">{"//"}</span>{" "}
           {latinRight}
+        </span>
+        <span className="mt-[4px] font-jp text-[11px] font-bold leading-none tracking-[0.14em] text-text-low">
+          {site.jp}
         </span>
       </div>
 

@@ -47,8 +47,11 @@ export default function Footer(): React.ReactElement {
       <div className="frame-content relative pb-12 pt-20 md:pt-28">
         <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
           <Reveal>
-            <Micro className="block">{site.latin}</Micro>
-            <p className="mt-4 font-jp text-[clamp(2.75rem,8vw,5.5rem)] font-black leading-[0.86] tracking-[-0.02em] text-text-hi">
+            <Micro className="block">{site.location}</Micro>
+            <p className="mt-4 font-display text-[clamp(2.9rem,8.4vw,5.75rem)] uppercase leading-[0.86] tracking-[-0.02em] text-text-hi">
+              {site.latin}
+            </p>
+            <p className="mt-3 font-jp text-[clamp(1rem,2vw,1.35rem)] font-bold leading-none tracking-[0.08em] text-text-low">
               {site.jp}
             </p>
             <p className="mt-5 font-mincho text-[15px] leading-relaxed text-text-mid">

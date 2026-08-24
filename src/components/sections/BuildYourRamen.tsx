@@ -225,18 +225,13 @@ export default function BuildYourRamen(): React.ReactElement {
                       </span>
 
                       <span className="relative block">
-                        <span className="block font-jp text-[clamp(1.35rem,2.6vw,1.75rem)] font-black leading-none text-text-hi">
-                          {b.jp}
-                        </span>
-                        <span
-                          className={cx(
-                            "mt-2.5 block font-mono text-[10px] leading-tight tracking-[0.16em] uppercase",
-                            on ? "text-text-hi" : "text-text-mid",
-                          )}
-                        >
+                        <span className="block font-display text-[clamp(1.4rem,2.7vw,1.85rem)] uppercase leading-none tracking-[-0.005em] text-text-hi">
                           {b.name}
                         </span>
-                        <span className="mt-1.5 flex items-baseline justify-between gap-1">
+                        <span className="mt-1.5 block font-jp text-[12px] font-bold leading-none tracking-[0.06em] text-text-low">
+                          {b.jp}
+                        </span>
+                        <span className="mt-2.5 flex items-baseline justify-between gap-1">
                           <Micro xs className="truncate">
                             {b.note}
                           </Micro>
@@ -365,11 +360,11 @@ export default function BuildYourRamen(): React.ReactElement {
                       <Micro xs className="block">
                         {build.no} / {build.latin}
                       </Micro>
-                      <h3 className="mt-1.5 font-jp text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-none text-text-hi">
-                        {current.jp}
+                      <h3 className="mt-1.5 font-display text-[clamp(1.8rem,4.1vw,2.6rem)] uppercase leading-none tracking-[-0.01em] text-text-hi">
+                        {current.name}
                       </h3>
                       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                        <TagChip>{current.name}</TagChip>
+                        <TagChip>{current.jp}</TagChip>
                         <TagChip>{current.note}</TagChip>
                         {chosen.length > 0 ? (
                           <TagChip className="tabular-nums">

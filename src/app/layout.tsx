@@ -9,11 +9,11 @@ const notoJp = Noto_Sans_JP({ weight: ["700", "900"], subsets: ["latin"], variab
 const mincho = Shippori_Mincho({ weight: ["700", "800"], subsets: ["latin"], variable: "--font-mincho", display: "swap", preload: false });
 
 export const metadata: Metadata = {
-  title: "UMAMI // 拉麵 — Born From Two Worlds",
+  title: "UMAMI // RAMEN — Born From Two Worlds",
   description:
     "A Chinese-Japanese fusion ramen shop in Yokohama. Sixty-hour broth, nine hand-selected components, one bowl.",
   openGraph: {
-    title: "UMAMI // 拉麵 — Born From Two Worlds",
+    title: "UMAMI // RAMEN — Born From Two Worlds",
     description: "Sixty-hour broth, nine hand-selected components, one bowl. Yokohama, since 1910.",
     type: "website",
   },

@@ -5,14 +5,14 @@
  */
 
 export const site = {
-  name: "UMAMI // 拉麵",
+  name: "UMAMI // RAMEN",
   jp: "旨味",
   latin: "UMAMI // RAMEN",
   tagline: "Born from two worlds.",
   location: "Yokohama, Japan",
   coords: { lat: "35.4°N", lon: "139.6°E" },
   hours: "11:00–23:00",
-  openLabel: "営業中 / OPEN",
+  openLabel: "OPEN / 営業中",
 } as const;
 
 export const nav = [
@@ -47,20 +47,19 @@ export const hero = {
       from: 0.0,
       to: 0.145,
       kicker: "SLOW-SIMMERED // No.01",
-      jpLine1: "旨味",
-      jpLine2: "拉麵",
-      latin: "UMAMI // RAMEN",
+      enLine1: "UMAMI",
+      enLine2: "RAMEN",
+      jpSmall: "旨味 // 拉麵",
       tagline: "Slow-simmered. Bowl by bowl.",
     },
     {
       id: "dossier",
       from: 0.185,
       to: 0.285,
-      kicker: "仕様書 // SPECIFICATION",
-      jpTitle: "仕様書",
+      kicker: "SPECIFICATION // No.02",
       no: "02",
-      jpChapter: "深める",
-      latin: "FUKAMERU · THE DEEPENING",
+      enChapter: "THE DEEPENING",
+      jpSmall: "仕様書 · 深める · FUKAMERU",
       body: "Sixty hours over a low flame. The bones give up their collagen slowly, and nothing about that can be hurried.",
       tempLabel: "CORE TEMP",
       spec: [
@@ -77,11 +76,11 @@ export const hero = {
       id: "steam",
       from: 0.325,
       to: 0.428,
-      kicker: "章 // CHAPTER THREE",
+      kicker: "CHAPTER THREE // No.03",
       no: "03",
-      jpInline: "湯気",
-      jpLine2: "の世界",
-      latin: "THE WORLD OF STEAM",
+      enLine1: "THE WORLD",
+      enLine2: "OF STEAM",
+      jpSmall: "湯気の世界 · YUKE NO SEKAI",
       body: "Steam is the first thing you taste. It carries the fat, the aromatics and the heat to you before the spoon does.",
       readoutLabel: "STEAM RATE",
       readoutUnit: "G/S",
@@ -107,7 +106,7 @@ export const hero = {
   instrument: {
     leftPill: "SCRUB ACTIVE",
     rightGroups: ["TEMP", "STEAM", "CH", "FRAME"],
-    cta: "MENU 品書",
+    cta: "MENU",
   },
 } as const;
 
@@ -207,7 +206,7 @@ export const steam = {
 export const simmer = {
   no: "04",
   jp: "煮込み",
-  latin: "THE SIMMER · 16 HOURS",
+  latin: "THE SIMMER",
   kicker: "PROCESS // No.04 · SIXTEEN HOURS",
   counterLabel: "ELAPSED",
 } as const;
@@ -217,7 +216,7 @@ export const simmer = {
 export const ingredients = {
   no: "05",
   jp: "手選素材 九種類",
-  latin: "HAND-SELECTED · NINE KINDS",
+  latin: "NINE INGREDIENTS",
   kicker: "SOURCING // NINE KINDS",
   body: "Nine hand-selected components. Each is sourced from a single producer, and each is refused outright if it arrives below standard — there is no second grade.",
   cells: [
@@ -252,7 +251,7 @@ export const craft = {
 export const story = {
   no: "07",
   jp: "物語",
-  latin: "THE STORY · 拉麵の歴史",
+  latin: "THE STORY",
   kicker: "ORIGIN // EST. 1910",
   flags: {
     cn: { label: "中国 · CHINA", name: "拉麵", sub: "LA MIAN" },

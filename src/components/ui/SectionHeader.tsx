@@ -3,8 +3,12 @@
  *
  *   line 1   micro kicker                         text-text-low
  *   line 2   "// NN."  in .slashes (amber, oblique, ~1.1x) sitting on the SAME
- *            baseline as the large Japanese title in font-jp font-black
- *   line 3   the small English latin line, in micro
+ *            baseline as the large ENGLISH title in the display face
+ *   line 3   the Japanese, small, beneath it
+ *
+ * English leads and the Japanese is the accent, not the other way round: this
+ * has to be readable first and atmospheric second. The lockup is still
+ * trilingual — kicker, title, native name — only the weighting changed.
  *
  * align='left' (default) hugs the left edge of the content frame — the house
  * position. align='center' exists only for sections 07 and 08.
@@ -29,9 +33,9 @@ export function SectionHeader({
 }: {
   /** Chapter numeral, zero-padded: "01" … "08". */
   no: string;
-  /** The large Japanese title. */
+  /** The Japanese title — set small, beneath the English. */
   jp: string;
-  /** The small English translation beneath it. */
+  /** The large English title. */
   latin: string;
   /** The mono kicker above it. */
   kicker: string;
@@ -57,12 +61,14 @@ export function SectionHeader({
         )}
       >
         <span className="slashes shrink-0 text-[1.1em] leading-[0.85]">{`// ${no}.`}</span>
-        <h2 className="font-jp text-[1em] font-black leading-[0.92] tracking-[-0.02em] text-text-hi">
-          {jp}
+        <h2 className="font-display text-[1em] leading-[0.9] tracking-[-0.01em] text-text-hi uppercase">
+          {latin}
         </h2>
       </div>
 
-      <Micro className="mt-3 block">{latin}</Micro>
+      <p className="mt-3 font-jp text-[clamp(0.95rem,1.5vw,1.35rem)] font-bold leading-none text-text-low">
+        {jp}
+      </p>
     </header>
   );
 }

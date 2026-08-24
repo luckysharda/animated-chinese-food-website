@@ -138,10 +138,12 @@ function FlagBlock({
       </Micro>
       {plate}
       <figcaption className="flex flex-col items-center gap-2">
-        <span className="font-jp text-[clamp(1.25rem,3.1vw,2rem)] font-black leading-none tracking-[-0.01em] text-text-hi">
+        <span className="font-display text-[clamp(1.3rem,3.2vw,2.1rem)] uppercase leading-none tracking-[-0.005em] text-text-hi">
+          {sub}
+        </span>
+        <span className="font-jp text-[15px] font-bold leading-none tracking-[0.06em] text-text-low">
           {name}
         </span>
-        <Micro className="block">{sub}</Micro>
       </figcaption>
     </figure>
   );
@@ -306,11 +308,13 @@ export default function Story(): React.ReactElement {
             {`// ${story.no}.`}
           </span>
 
-          <h2 className="mt-4 font-mincho text-[clamp(4rem,12vw,9.5rem)] font-extrabold leading-[0.84] tracking-[0.04em] text-text-hi">
-            {story.jp}
+          <h2 className="mt-4 font-display text-[clamp(3.25rem,10vw,8rem)] uppercase leading-[0.86] tracking-[-0.01em] text-text-hi">
+            {story.latin}
           </h2>
 
-          <Micro className="mt-6 block">{story.latin}</Micro>
+          <p className="mt-5 font-mincho text-[clamp(1.1rem,2.4vw,1.6rem)] font-bold leading-none tracking-[0.08em] text-text-low">
+            {story.jp}
+          </p>
         </Reveal>
 
         {/* ── THE TWO FLAGS, 丼 between them ── */}

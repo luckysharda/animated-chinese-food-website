@@ -197,16 +197,18 @@ export default function HeroCaptionDeck({
           {lockup.kicker}
         </Micro>
 
-        <div className="mt-3 font-jp text-[clamp(38px,3.6vw,58px)] font-black leading-[0.88] tracking-[-0.03em] text-text-hi">
-          <div>{lockup.jpLine1}</div>
+        <div className="mt-3 font-display text-[clamp(40px,3.8vw,60px)] uppercase leading-[0.86] tracking-[-0.015em] text-text-hi">
+          <div>{lockup.enLine1}</div>
           {/* The // OPENS the second line. It is a mark, not a separator. */}
           <div className="flex items-baseline gap-[0.12em]">
             <span className="slashes text-[0.56em] leading-none">{"//"}</span>
-            <span>{lockup.jpLine2}</span>
+            <span>{lockup.enLine2}</span>
           </div>
         </div>
 
-        <Micro className="mt-4 block">{lockup.latin}</Micro>
+        <p className="mt-4 font-jp text-[15px] font-bold leading-none tracking-[0.06em] text-text-low">
+          {lockup.jpSmall}
+        </p>
         <p className="mt-2 max-w-[26ch] text-[11px] leading-[1.6] text-text-mid">
           {lockup.tagline}
         </p>
@@ -226,11 +228,13 @@ export default function HeroCaptionDeck({
 
         <div className="mt-3 flex items-baseline gap-2">
           <span className="slashes text-[15px] leading-none">{`// ${dossier.no}`}</span>
-          <span className="font-jp text-[26px] font-black leading-none tracking-[-0.02em] text-text-hi">
-            {dossier.jpChapter}
+          <span className="font-display text-[27px] uppercase leading-none tracking-[-0.005em] text-text-hi">
+            {dossier.enChapter}
           </span>
         </div>
-        <Micro className="mt-2.5 block">{dossier.latin}</Micro>
+        <p className="mt-2.5 font-jp text-[13px] font-bold leading-none tracking-[0.06em] text-text-low">
+          {dossier.jpSmall}
+        </p>
 
         <div className="mt-5">
           <Micro xs className="block">
@@ -274,16 +278,18 @@ export default function HeroCaptionDeck({
           {steamCard.kicker}
         </Micro>
 
-        <div className="mt-3 font-jp text-[clamp(30px,2.9vw,44px)] font-black leading-[0.94] tracking-[-0.03em] text-text-hi">
+        <div className="mt-3 font-display text-[clamp(31px,3vw,46px)] uppercase leading-[0.9] tracking-[-0.01em] text-text-hi">
           {/* The numeral sets INLINE with the first word — not above it. */}
           <div className="flex items-baseline gap-[0.16em]">
             <span className="numeric text-[0.74em] leading-none">{`${steamCard.no}.`}</span>
-            <span>{steamCard.jpInline}</span>
+            <span>{steamCard.enLine1}</span>
           </div>
-          <div>{steamCard.jpLine2}</div>
+          <div>{steamCard.enLine2}</div>
         </div>
 
-        <Micro className="mt-3 block">{steamCard.latin}</Micro>
+        <p className="mt-3 font-jp text-[13px] font-bold leading-none tracking-[0.06em] text-text-low">
+          {steamCard.jpSmall}
+        </p>
         <p className="mt-3 text-[11px] leading-[1.62] text-text-mid">{steamCard.body}</p>
 
         <div className="mt-5 border-t border-line-100/70 pt-3">
