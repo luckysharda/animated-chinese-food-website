@@ -28,6 +28,7 @@ import { Numeric } from "@/components/ui/Numeric";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { assets } from "@/data/assets";
 import { simmer } from "@/data/content";
+import { SIMMER_TRACK_VH } from "@/lib/scroll-config";
 
 /* ── the pin's shape ───────────────────────────────────────────────────────── */
 
@@ -163,7 +164,12 @@ export default function Simmer(): React.ReactElement {
 
   /* ── the track ── */
   return (
-    <section id="simmer" ref={trackRef} className="relative h-[300dvh] bg-ink-900">
+    <section
+      id="simmer"
+      ref={trackRef}
+      className="relative bg-ink-900"
+      style={{ height: `${SIMMER_TRACK_VH}dvh` }}
+    >
       <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
         {/* full-bleed footage — two stacked layers, B crossfades in over A */}
         <div

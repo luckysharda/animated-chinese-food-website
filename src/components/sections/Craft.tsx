@@ -31,6 +31,7 @@ import { Micro } from "@/components/ui/Micro";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { retainRefreshDiscipline } from "@/hooks/useScrollScrub";
+import { CRAFT_SPAN_MULTIPLIER } from "@/lib/scroll-config";
 
 const PANELS = craft.panels;
 const CLIPS = [assets.video.craft01, assets.video.craft02, assets.video.craft03];
@@ -113,7 +114,8 @@ export default function Craft(): React.ReactElement {
                 trigger: section,
                 start: "top top",
                 // panels.length × 100vw of scroll, re-read on every refresh.
-                end: () => "+=" + PANELS.length * window.innerWidth,
+                end: () =>
+                  "+=" + PANELS.length * window.innerWidth * CRAFT_SPAN_MULTIPLIER,
                 pin: true,
                 pinSpacing: true,
                 scrub: 1,

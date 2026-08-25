@@ -130,6 +130,27 @@ Both are silent failures — nothing errors, the files simply become wrong.
    exactly like the script having done nothing. Every asset script now clears that cache
    as its last step.
 
+## Scroll speed
+
+Every lever lives in `src/lib/scroll-config.ts`. "It scrolls too fast" is two
+different complaints with two different fixes, and they compose:
+
+| Constant | What it changes | Current |
+|---|---|---|
+| `WHEEL_SPEED` | how far one wheel notch travels. 1 = browser default | `0.7` |
+| `SCROLL_LERP` | Lenis glide weight, lower = heavier settle | `0.085` |
+| `HERO_TRACK_VH` | scroll the hero's 120 frames are spread across | `750` |
+| `SIMMER_TRACK_VH` | scroll `// 04`'s 00H->16H counter is spread across | `480` |
+| `CRAFT_SPAN_MULTIPLIER` | sideways travel per panel in `// 06` | `1.6` |
+
+Measured at 1512x900: one 100px wheel notch moves the page 70px; the hero scrubs
+across 6.5 viewports at 49px per frame; the simmer across 3.8 viewports at 214px
+per hour; the document is 32 viewports tall.
+
+Want it faster again? Raise `WHEEL_SPEED` toward 1 first — that is the one that
+changes how the page feels under your hand without touching the choreography.
+Shorten the tracks only if a *section* is dragging.
+
 ## Scroll architecture
 
 Three rules, and the whole site is an application of them.

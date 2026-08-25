@@ -27,6 +27,7 @@ import {
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { SCROLL_LERP, WHEEL_SPEED } from "@/lib/scroll-config";
 
 /* The lenis.css rules (html.lenis height:auto, .lenis-smooth scroll-behavior:auto,
    .lenis-stopped overflow:hidden) already live in globals.css, so the package
@@ -104,8 +105,10 @@ export function SmoothScroll({ children }: { children: ReactNode }): ReactElemen
       // REQUIRED. The default is already false in lenis 1.3, but state it: a stray
       // `true` gives you two rAF loops and a scrub that stutters under load.
       autoRaf: false,
-      lerp: 0.1,
+      lerp: SCROLL_LERP,
       smoothWheel: true,
+      // One wheel notch travels less than the browser default — see scroll-config.
+      wheelMultiplier: WHEEL_SPEED,
       // Leave native momentum alone on touch.
       syncTouch: false,
       // We handle anchors ourselves via scrollToId(), so the nav can apply its own offset.

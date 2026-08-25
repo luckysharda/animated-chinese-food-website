@@ -37,6 +37,7 @@ import dynamic from "next/dynamic";
 import { HERO_FRAME_COUNT } from "@/data/assets";
 import { useScrollScrub } from "@/hooks/useScrollScrub";
 import { WEBGL_CLIMAX } from "./config";
+import { HERO_TRACK_VH } from "@/lib/scroll-config";
 import { prefersReducedMotion } from "@/hooks/useReducedMotion";
 import HeroCanvas, { type HeroCanvasHandle } from "./HeroCanvas";
 import HeroCaptionDeck, { type HeroCaptionDeckHandle } from "./HeroCaptionDeck";
@@ -166,7 +167,12 @@ export default function Hero(): React.ReactElement {
   }, [applyBowlVisibility]);
 
   return (
-    <section id="hero" ref={trackRef} className="relative h-[500dvh] bg-ink-900">
+    <section
+      id="hero"
+      ref={trackRef}
+      className="relative bg-ink-900"
+      style={{ height: `${HERO_TRACK_VH}dvh` }}
+    >
       <div
         ref={stageRef}
         className="sticky top-0 isolate h-[100dvh] w-full overflow-hidden bg-ink-900"
