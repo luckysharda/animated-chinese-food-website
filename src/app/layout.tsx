@@ -24,6 +24,21 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
+/**
+ * This layout stays a SERVER component, and the route stays ○ (Static).
+ *
+ * It is also hydration-safe by construction. The provider holds no state and
+ * renders nothing of its own — it returns a context whose value is a module-level
+ *
+ * There is deliberately NO flags provider. src/lib/flags.ts is hook-only — useFlag()
+ * reads through useSyncExternalStore with a getServerSnapshot pinned to the registry
+ * default, so it needs no context and nothing to mount. Wrapping it in an invented
+ * provider would add a boundary that buys nothing. Consumers import useFlag/getFlag
+ * directly.
+ *
+ * Nothing above or below reads headers(), cookies() or searchParams — those are the
+ * calls that would force this route dynamic.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -31,7 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${anton.variable} ${mono.variable} ${notoJp.variable} ${mincho.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-ink-800 text-text-mid antialiased">{children}</body>
+      <body className="bg-ink-800 text-text-mid antialiased">
+        {children}
+      </body>
     </html>
   );
 }

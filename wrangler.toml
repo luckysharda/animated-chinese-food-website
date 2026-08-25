@@ -1,0 +1,11 @@
+# Cloudflare Pages project config.
+#
+# The site is a pure static export (see next.config.ts, BUILD_TARGET=static), so
+# there are no Pages Functions and no Workers runtime involved — Cloudflare just
+# serves the files in out/ from its edge.
+#
+#   npm run build:static && npx wrangler pages deploy
+#
+name = "umami-ramen"
+compatibility_date = "2026-08-25"
+pages_build_output_dir = "out"

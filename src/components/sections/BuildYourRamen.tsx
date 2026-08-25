@@ -108,6 +108,17 @@ export default function BuildYourRamen(): React.ReactElement {
   }, [total, reduced]);
 
   /* ── selection ────────────────────────────────────────────────────────── */
+
+  /**
+   * Both the pointer and the arrow keys land here, so the event is recorded once per
+   * actual change of broth. Re-clicking the broth that is already on is a no-op for
+   * state — re-selecting the same broth would otherwise read as a second
+   * choice that never happened.
+   */
+  function selectBroth(key: BowlKey): void {
+    setBroth(key);
+  }
+
   function toggleTopping(key: ToppingKey): void {
     setPicked((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
@@ -125,7 +136,7 @@ export default function BuildYourRamen(): React.ReactElement {
     else return;
 
     e.preventDefault();
-    setBroth(build.broths[next].key);
+    selectBroth(build.broths[next].key);
     brothRefs.current[next]?.focus();
   }
 
@@ -183,7 +194,7 @@ export default function BuildYourRamen(): React.ReactElement {
                       role="radio"
                       aria-checked={on}
                       tabIndex={on ? 0 : -1}
-                      onClick={() => setBroth(b.key)}
+                      onClick={() => selectBroth(b.key)}
                       onKeyDown={(e) => onBrothKeyDown(e, i)}
                       className={cx(
                         "group relative flex h-[190px] flex-col justify-between overflow-hidden",

@@ -130,6 +130,53 @@ Both are silent failures — nothing errors, the files simply become wrong.
    exactly like the script having done nothing. Every asset script now clears that cache
    as its last step.
 
+## Deployment
+
+Two targets, either or both — full detail in [DEPLOY.md](./DEPLOY.md).
+
+| | Build | Ships as |
+|---|---|---|
+| **Cloudflare Pages** | `npm run build:static` | `out/` — 564 static files, 31MB |
+| **Docker / ghcr.io** | `npm run build` | `ghcr.io/luckysharda/animated-chinese-food-website` |
+
+Both routes are prerendered, so the static target loses nothing but `next/image`
+optimisation — which is why `/public` is authored at the sizes the layout uses.
+
+Three GitHub Actions workflows:
+
+- **`ci.yml`** — on every push and PR: `tsc --noEmit`, lint, `next build`, and a Docker
+  build so a broken Dockerfile fails CI without needing a registry
+- **`release.yml`** — on `main` and `v*` tags: builds and pushes the image to ghcr.io,
+  authenticating with the built-in `GITHUB_TOKEN`. No secret to configure.
+- **`pages.yml`** — on `main`: builds the static export and deploys it to Cloudflare
+  Pages. Needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and fails fast with a
+  named error if either is missing.
+
+## Feature flags
+
+The registry in `src/lib/flags.ts` is the single source of truth — adding a flag is one
+line in `FLAG_DEFAULTS`, and the types follow.
+
+| Flag | Default | Effect |
+|---|---|---|
+| `webgl-climax` | `false` | hand the hero climax to three.js instead of the footage's own exploded-view shot |
+| `hero-frame-ladder` | `"full"` | `"full"` = 120 frames, `"light"` = every 4th |
+| `lineup-cta-copy` | `"add-to-bowl"` | the `// 01` card CTA wording |
+
+Resolution order, highest first: `NEXT_PUBLIC_FLAG_OVERRIDES` JSON → `localStorage` →
+the registry default. Flags resolve to their default on the server and on the first
+client render, then re-render — a flag can never cause a hydration mismatch, which
+matters because this page is statically prerendered.
+
+Flip one without rebuilding, in the browser console (development builds only):
+
+```js
+__flags.set("webgl-climax", true)   // persists in localStorage
+__flags.list()                      // every value, and which layer won
+```
+
+There is no analytics in this project and no third-party script of any kind.
+
 ## Scroll speed
 
 Every lever lives in `src/lib/scroll-config.ts`. "It scrolls too fast" is two

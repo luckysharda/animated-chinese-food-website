@@ -1,0 +1,61 @@
+# Build context hygiene. public/ is deliberately NOT ignored — the 120-frame
+# hero sequence and the photography are the product.
+
+# Installed by `npm ci` inside the deps stage, never copied in.
+node_modules
+**/node_modules
+
+# Local build output; the builder stage produces its own.
+.next
+out
+build
+*.tsbuildinfo
+
+# VCS
+.git
+.gitignore
+.github
+.gitattributes
+
+# 10MB of source photography + the hero source video. `npm run assets` and
+# `npm run hero` consume these to generate public/, which is committed.
+# The runtime and the build never touch them.
+assets-src
+
+# Secrets never belong in an image layer. Compose still reads .env from the
+# host for build args and runtime env.
+.env
+.env.*
+*.pem
+
+# Editor / OS / tooling noise
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
+*.swo
+.turbo
+.eslintcache
+coverage
+.vercel
+
+# Scratch + screenshot noise
+scratch
+scratch/**
+tmp
+temp
+screenshots
+*-screenshot.png
+screenshot*.png
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Docker's own files — changing them should not bust the source COPY layer.
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml

@@ -17,6 +17,10 @@
  * Reduced motion ships in this file: Reveal renders its end state, useScrollScrub
  * writes progress 1 once (the line is simply there), and the hover variants are
  * withheld so nothing transforms.
+ *
+ * The card CTA is the section's one instrumented control: "lineup-cta-copy"
+ * chooses its wording, and pressing it captures bowl_cta_click. Both degrade to
+ * nothing — the flag to its registry default, the capture to a no-op — when no
  */
 
 import Image from "next/image";
@@ -25,6 +29,7 @@ import { motion, type Variants } from "motion/react";
 
 import { lineup } from "@/data/content";
 import { assets } from "@/data/assets";
+import { useFlag } from "@/lib/flags";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useScrollScrub } from "@/hooks/useScrollScrub";
 import { Micro } from "@/components/ui/Micro";
@@ -56,12 +61,30 @@ const imageVariants: Variants = {
   hover: { scale: 1.04, transition: { duration: DUR, ease: EASE } },
 };
 
+/**
+ * CTA copy, per "lineup-cta-copy".
+ *
+ * The default variant is not re-typed here — it IS content.lineup.cta, so the
+ * copy deck stays the single source of truth for the shipped wording and this
+ * table only carries the alternative the flag can swap in.
+ */
+const CTA_COPY = {
+  "add-to-bowl": lineup.cta,
+  "order-now": "ORDER NOW",
+} as const;
+
 /** next/image sizing: full bleed on mobile, a third of the frame on desktop. */
 const CARD_SIZES =
   "(max-width: 767px) calc(100vw - 40px), (max-width: 1439px) 32vw, 448px";
 
 export default function Lineup(): React.ReactElement {
   const reduced = useReducedMotion();
+
+  /* useFlag() answers with the registry default on the server AND on the
+     hydrating render, then re-renders once with the resolved value — so the
+     button's text can never disagree with the prerendered HTML. */
+  const ctaVariant = useFlag("lineup-cta-copy");
+  const ctaLabel = CTA_COPY[ctaVariant];
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const lineRef = useRef<HTMLSpanElement | null>(null);
@@ -227,7 +250,7 @@ export default function Lineup(): React.ReactElement {
                         color: "var(--color-ember-700)",
                       }}
                     >
-                      {lineup.cta}
+                      {ctaLabel}
                     </button>
                   </div>
                 </motion.article>

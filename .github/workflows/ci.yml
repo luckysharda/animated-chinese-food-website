@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One in-flight run per branch / PR. Pushing again makes the older run's answer
+# stale, so it is cancelled rather than left to burn a runner to completion.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Nothing here writes to the repo, comments on a PR, or publishes anything.
+# Reading the source is the whole scope.
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  verify:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          # Keys off package-lock.json; restores ~/.npm so `npm ci` refetches
+          # nothing on an unchanged lockfile.
+          cache: npm
+
+      # Lockfile-exact install. Fails loudly if package.json and the lock drift
+      # apart, which a plain `npm install` would silently paper over.
+      - name: Install dependencies
+        run: npm ci
+
+      # `next build` type-checks too, but a standalone tsc pass fails in seconds
+      # on a type error instead of after a full production compile.
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      # No secrets are provided on purpose: the site must build and run with
+      # feature flags falling back to their registry defaults.
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Deliberately not `needs: verify`. The two run in parallel so a broken
+    # Dockerfile is reported on the same run as a lint failure, not after it.
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # push: false — no registry, no credentials, image is discarded. This job
+      # exists so a broken Dockerfile fails CI.
+      #
+      # `context: .` is load-bearing: with no context the action builds from the
+      # remote Git context instead of the tree just checked out, which would
+      # quietly ignore the PR's changes to the Dockerfile.
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
