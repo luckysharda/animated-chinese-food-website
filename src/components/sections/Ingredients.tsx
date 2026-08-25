@@ -44,6 +44,16 @@ const TRAVEL_OF_FRAME = 0.07;
 /** gsap yPercent is a fraction of the ELEMENT's own height, so convert. */
 const SHIFT_PCT = (TRAVEL_OF_FRAME / IMAGE_SCALE) * 100;
 
+/** next/image sizing. A cell is NOT a fraction of the viewport: the bento sits
+ *  inside .frame-content, so it is (frame − gaps) / columns, and past the 1440px
+ *  container the cell stops growing with the viewport and caps at ~431px.
+ *    ≥1440  (1440 − 2·64 − 2·16) / 3 = 427px  → 432px
+ *    ≥1024  (100vw − 2·4vw − 32) / 3         → 30vw
+ *    ≥640   (100vw − 2·4vw − 16) / 2         → 46vw
+ *    <640    100vw − 2·20                    → calc(100vw − 40px)  */
+const CELL_SIZES =
+  "(min-width: 1440px) 432px, (min-width: 1024px) 30vw, (min-width: 640px) 46vw, calc(100vw - 40px)";
+
 
 type Cell = (typeof ingredients.cells)[number];
 
@@ -194,7 +204,7 @@ function BentoCell({
               src={src}
               alt={`${cell.name} — ${cell.jp}`}
               fill
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              sizes={CELL_SIZES}
               className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
             />
           </div>

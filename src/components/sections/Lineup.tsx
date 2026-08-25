@@ -166,7 +166,16 @@ export default function Lineup(): React.ReactElement {
                         className="object-cover"
                       />
                     </motion.div>
-                    <span aria-hidden className="scrim absolute inset-0" />
+                    {/* A SMALL BOTTOM scrim only. The house .scrim is the
+                        top+bottom gradient for a FULL-BLEED image, and its 0.75
+                        top band would land straight across the chopsticks and
+                        the noodle lift — the top two thirds of these bowls is
+                        the photograph, and the caption below is the only text
+                        on it. */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-900/90 via-ink-900/40 to-transparent"
+                    />
                     {/* caption in the bottom-left of its own image */}
                     <Micro
                       xs

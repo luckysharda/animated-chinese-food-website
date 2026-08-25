@@ -179,7 +179,15 @@ function EraCard({
           sizes={ERA_SIZES}
           className="object-cover"
         />
-        <span aria-hidden className="scrim pointer-events-none absolute inset-0 block" />
+        {/* A SMALL BOTTOM scrim only. The house .scrim is the top+bottom
+            gradient for a FULL-BLEED image; here its 0.75 top band would bury
+            the lantern canopy, the gate crown and the neon that these four
+            frames are actually about, and the caption below is the only text
+            the image carries. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 block h-1/3 bg-gradient-to-t from-ink-900/90 via-ink-900/40 to-transparent"
+        />
         {/* the caption sits in the bottom-left of its OWN image */}
         <Micro xs className="absolute bottom-3 left-3 text-text-mid!">
           {`${no} / ${era.jp}`}

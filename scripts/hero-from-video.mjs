@@ -88,8 +88,27 @@ async function main() {
     path.join(OUT, "explode-still.jpg")]);
   console.log("  poster.jpg    first frame");
   console.log("  explode-still.jpg  last frame — the reduced-motion / no-WebGL end state");
+  await clearImageCache();
 
   console.log(`\nDone in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+}
+
+/**
+ * next/image caches its optimized variants under .next/cache/images, keyed by the
+ * source URL — not by the file's contents. Replacing a file in /public without
+ * changing its path therefore leaves the browser being served the OLD optimized
+ * copy until that entry expires, which looks exactly like the script having done
+ * nothing. Clearing it here is the difference between "the images did not update"
+ * and a five-minute hunt.
+ */
+async function clearImageCache() {
+  const dir = path.join(process.cwd(), ".next/cache/images");
+  try {
+    await rm(dir, { recursive: true, force: true });
+    console.log("  cleared .next/cache/images — next/image would otherwise serve stale copies");
+  } catch {
+    /* no build yet; nothing to clear */
+  }
 }
 
 main().catch((e) => { console.error("\nHero build failed:", e.message); process.exit(1); });

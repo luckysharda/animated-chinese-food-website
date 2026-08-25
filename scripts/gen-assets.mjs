@@ -14,7 +14,7 @@
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdir, rm, readdir } from "node:fs/promises";
+import { mkdir, rm, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const run = promisify(execFile);
@@ -88,9 +88,39 @@ async function clip(base, out, secs = 5) {
   ]);
 }
 
+/**
+ * Slots that real photography now owns.
+ *
+ * scripts/place-images.mjs renders real photos into the same paths this script
+ * would otherwise fill with abstract light plates. Without this guard, one run of
+ * `npm run assets` silently replaces every real photograph on the site with a
+ * gradient — the files are the same names, so nothing errors and nothing warns.
+ * The hero already had this protection; this extends it to everything else.
+ */
+async function claimedByPhotography() {
+  const claimed = new Set();
+  try {
+    const raw = await readFile(path.join(process.cwd(), "assets-src/crop-manifest.json"), "utf8");
+    const parsed = JSON.parse(raw);
+    // The manifest is { $comment, watermark, entries: [...] }; tolerate a bare array too.
+    const entries = Array.isArray(parsed) ? parsed : (parsed.entries ?? []);
+    for (const entry of entries) {
+      if (!entry?.target) continue;
+      claimed.add(entry.target);
+      // A video entry owns its poster as well, and vice versa.
+      if (entry.target.endsWith(".mp4")) claimed.add(entry.target.replace(/\.mp4$/, "-poster.jpg"));
+      if (entry.target.endsWith("-poster.jpg")) claimed.add(entry.target.replace(/-poster\.jpg$/, ".mp4"));
+    }
+  } catch {
+    /* no manifest — nothing has been placed yet, so generate everything */
+  }
+  return claimed;
+}
+
 async function main() {
   const t0 = Date.now();
   console.log("Generating placeholder assets with ffmpeg…\n");
+  const claimed = await claimedByPhotography();
 
   // ── hero ──
   // The hero sequence comes from REAL FOOTAGE and is built by a different
@@ -129,18 +159,49 @@ async function main() {
     ...Array.from({ length: 4 }, (_, i) =>
       [`story/era-0${i + 1}.jpg`, 1200, 800, `era-${i}`, { warm: "0xC22B0E", coolA: 0.34, sat: 0.94 }]),
   ];
-  for (const [rel, w, h, seed, opts] of jobs) await plate(path.join(PUB, rel), w, h, seed, opts);
-  console.log(`  bowls / toppings / ingredients / story  ${jobs.length} plates`);
+  const todo = jobs.filter(([rel]) => !claimed.has(rel));
+  for (const [rel, w, h, seed, opts] of todo) await plate(path.join(PUB, rel), w, h, seed, opts);
+  const skipped = jobs.length - todo.length;
+  console.log(
+    `  bowls / toppings / ingredients / story  ${todo.length} plates` +
+      (skipped ? `  (${skipped} skipped — real photography owns them)` : ""),
+  );
 
   // ── video: five loops + their posters ──
-  for (const name of ["simmer-01", "simmer-02", "craft-01", "craft-02", "craft-03"]) {
+  const clips = ["simmer-01", "simmer-02", "craft-01", "craft-02", "craft-03"].filter(
+    (n) => !claimed.has(`video/${n}.mp4`) && !claimed.has(`video/${n}-poster.jpg`),
+  );
+  for (const name of clips) {
     const poster = path.join(PUB, `video/${name}-poster.jpg`);
     await plate(poster, 1280, 720, `vid-${name}`, { warmA: 0.66, q: 4 });
     await clip(poster, path.join(PUB, `video/${name}.mp4`), 5);
   }
-  console.log("  video  5 clips + posters");
+  console.log(
+    clips.length
+      ? `  video  ${clips.length} clips + posters`
+      : "  video          skipped — real photography owns all five",
+  );
+  await clearImageCache();
 
   console.log(`\nDone in ${((Date.now() - t0) / 1000).toFixed(1)}s → /public`);
+}
+
+/**
+ * next/image caches its optimized variants under .next/cache/images, keyed by the
+ * source URL — not by the file's contents. Replacing a file in /public without
+ * changing its path therefore leaves the browser being served the OLD optimized
+ * copy until that entry expires, which looks exactly like the script having done
+ * nothing. Clearing it here is the difference between "the images did not update"
+ * and a five-minute hunt.
+ */
+async function clearImageCache() {
+  const dir = path.join(process.cwd(), ".next/cache/images");
+  try {
+    await rm(dir, { recursive: true, force: true });
+    console.log("  cleared .next/cache/images — next/image would otherwise serve stale copies");
+  } catch {
+    /* no build yet; nothing to clear */
+  }
 }
 
 main().catch((e) => { console.error("\nAsset generation failed:", e.message); process.exit(1); });

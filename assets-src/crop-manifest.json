@@ -1,0 +1,319 @@
+{
+  "$comment": [
+    "Crop manifest for scripts/place-images.mjs — one entry per target slot in src/data/assets.ts.",
+    "public/hero/** is REAL FOOTAGE and is deliberately absent from this file.",
+    "x/y/w/h are normalised 0..1 against the SOURCE image; the renderer snaps each",
+    "rectangle to the target's exact aspect ratio around its own centre and clamps it",
+    "to the frame, so the numbers here are intent, not pixel gospel.",
+    "Watermark: measured, not assumed. Every source except img_01/02/03 carries a",
+    "~90x100px four-point sparkle centred at (W-240, H-240) — a fixed pixel offset from",
+    "the bottom-right corner, which is why its normalised position drifts from (0.92,0.84)",
+    "on the 2752x1536 landscapes to (0.86,0.90) on the tall portraits. The renderer",
+    "delogos it only when that box actually lands inside the crop.",
+    "CONFLICT POLICY: at most one wide/establishing slot per source photo; a macro detail",
+    "may share a source with it only at >=4x tighter framing; and the same SUBJECT never",
+    "appears in both the //02 chip row and the //05 ingredient grid from the same photo.",
+    "Two exceptions are forced by the photography and are called out in their why fields:",
+    "menma exists in exactly one frame (img_12), and img_01/img_08 each carry both a grid",
+    "cell and a video slot (tight vs wide framing of the same pot).",
+    "HONESTY: five slots name food that is not in any of the 19 sources (mala, corn,",
+    "narutomaki, chilli oil, and instant ramen for era-03). Those crops are honest",
+    "photographs of something else and are captioned in the why field; no lookalike is",
+    "passed off as the missing item, and nothing is tinted or graded to fake it."
+  ],
+  "watermark": {
+    "note": "Sparkle centre is a fixed offset from the bottom-right corner of the source.",
+    "offsetFromRight": 240,
+    "offsetFromBottom": 240,
+    "boxWidth": 150,
+    "boxHeight": 150,
+    "unmarkedSources": [
+      "img_01",
+      "img_02",
+      "img_03"
+    ]
+  },
+  "entries": [
+    {
+      "target": "bowls/tonkotsu.jpg",
+      "source": "img_14",
+      "x": 0.06,
+      "y": 0.28,
+      "w": 0.9291,
+      "h": 0.499,
+      "why": "The only genuinely pale, opaque, milk-white broth in the set, in a cream ceramic bowl on wet black slate — the truthful tonkotsu of the three cards. Measured bowl bounds are x 0.25-0.76, y 0.39-0.70, so this 3:2 band centres the bowl at 53% of frame height instead of the scout's 59% (its y was 0.25, which left the bowl sitting low with a dead strip of slate under it). Source is portrait 1856x2304, so a 3:2 slice has to run nearly full width: 1725x1150 native, a clean downscale to 1600x1067. Chopsticks lie across at y 0.31-0.36 and run off the right edge in the original, as they do here. Bottom edge at 0.779 stops above the sparkle at (0.87, 0.90), so no delogo is needed."
+    },
+    {
+      "target": "bowls/mala.jpg",
+      "source": "img_02",
+      "x": 0.105,
+      "y": 0.0,
+      "w": 0.8451,
+      "h": 1.0,
+      "why": "NOT MALA — see honesty note. Nothing in img_01..img_19 is red, chilli, or spiced: every bowl in the set is cream/amber/tan, and the only saturated red anywhere is paper lanterns and neon in the three street frames. This is the third genuinely different bowl instead: a low three-quarter view (breaking up the two top-downs), thick opaque tan-brown broth, warm lamp bokeh down the left, chopsticks lifting a curtain of noodles out of the top-right. Caption it MISO or, if you want a claim the photograph can prove outright, CHASHU-MEN — two glazed belly slices are the hero of the frame. Bowl spans x 0.19-0.83, y 0.20-0.89; crop puts its centre at 48% of frame width. Native 1414x942, the one unavoidable upscale in the set (1.13x) because img_02/03 are the smallest sources. img_02 carries no sparkle, so no delogo."
+    },
+    {
+      "target": "bowls/shoyu.jpg",
+      "source": "img_12",
+      "x": 0.13,
+      "y": 0.0,
+      "w": 0.8372,
+      "h": 1.0,
+      "why": "The quiet one: top-down on dark wood, clear amber broth you can read the noodle nest through — the exact opposite of img_14's opaque white. Measured bowl bounds are x 0.29-0.69, y 0.08-0.86 (the scout's 0.915 right edge was the spoon, not the bowl). Opening at x 0.13 rather than 0.15 gives the bowl a 44%-of-width placement and keeps the chopstick rest, chopsticks and porcelain spoon whole on the right — the still-life furniture that makes this card read as a different photograph rather than another bowl-only shot. The sparkle at (0.915, 0.843) falls inside on plain dark wood and is delogo'd. Native 2304x1536, a downscale."
+    },
+    {
+      "target": "toppings/chashu.jpg",
+      "source": "img_11",
+      "x": 0.547,
+      "y": 0.363,
+      "w": 0.156,
+      "h": 0.28,
+      "why": "MOVED off img_05. The scout put this chip inside its own ing-02 CHASHU rectangle — same photo, same slices, same subject at two sizes. This is the glazed belly slice sitting in the broth of the bowl-lift shot instead: rolled fat spiral, lacquered highlight, dark broth and noodle behind it. 429x430 native, so it downsamples into the 400px tile, and at 44px it reads unmistakably as pork. Different photograph from ing-02, which is the whole point of moving it."
+    },
+    {
+      "target": "toppings/ajitama.jpg",
+      "source": "img_09",
+      "x": 0.2867,
+      "y": 0.1609,
+      "w": 0.18,
+      "h": 0.3226,
+      "why": "The upper-left flying egg half from exploded bowl v2 — the cleanest ajitama in the set: jammy orange yolk dead centre against warm glow and dark falloff, a couple of scallion rings for scale. WIDENED from the scout's 400x400 rectangle, which cropped so tight that the white filled 78% of the tile, ran to the edges, and pushed the render's p95 to 216. At 495x496 native the egg fills ~57%, keeps dark surround on all four sides, and the highlights come back down. Deliberately a different photograph from ing-04 AJITAMA (img_06), so the chip and the grid cell are not the same egg."
+    },
+    {
+      "target": "toppings/menma.jpg",
+      "source": "img_12",
+      "x": 0.5218,
+      "y": 0.4726,
+      "w": 0.1344,
+      "h": 0.2409,
+      "why": "POLICY EXCEPTION, stated plainly: menma exists in exactly one of the nineteen photographs. I checked the other five bowls (img_02/03, 11, 14 and the exploded frames) at native resolution — no bamboo anywhere — so the chip and ing-08 MENMA have to share img_12. They are differentiated by scale, not by subject: this is a 370x370px macro of the three ridged tan batons at 4 o'clock in the bowl (measured at x 0.540-0.642, y 0.515-0.619), while ing-08 is a 5x wider bowl-quadrant. Verified at 44px: the batons still read as bamboo, not pork."
+    },
+    {
+      "target": "toppings/nori.jpg",
+      "source": "img_06",
+      "x": 0.1864,
+      "y": 0.0996,
+      "w": 0.2507,
+      "h": 0.4492,
+      "why": "The largest, best-lit nori sheet in the set. RE-FRAMED after review: the previous box was measured off the wrong feature — the y 0.058 'sheet top' was actually the falling scallion rings, and the real sheet occupies x 0.220-0.415, y 0.128-0.519, so the old rectangle sat 11% low and ran the sheet's bottom corner out of the tile. This 690x690 box (x 513-1203, y 153-843 native) centres the tilted diamond on the tile centre with all four corners clear by 55-62px in the 560px proof — measured on the render, not on the source. 690x690 native into a 400px tile, so the crinkled grain and green-black sheen still survive the downscale. Different photograph from ing-09 NORI (img_17)."
+    },
+    {
+      "target": "toppings/scallion.jpg",
+      "source": "img_12",
+      "x": 0.4625,
+      "y": 0.398,
+      "w": 0.105,
+      "h": 0.188,
+      "why": "MOVED off img_14. The scout had this chip and ing-05 SCALLION cropping the same mound in the same photograph. This is the top-down bowl's scallion instead — measured mound bounds x 0.475-0.555, y 0.404-0.580 — framed tight at 289x289px so the green fills ~70% of the tile and the box only clips a sliver of the menma chip's rectangle. 1.38x upscale into 400px, which is nothing for a tile that displays at 44px. Green is the most legible colour in the chip row and this keeps it a different photo from the grid's scallion cell."
+    },
+    {
+      "target": "toppings/corn.jpg",
+      "source": "img_10",
+      "x": 0.45,
+      "y": 0.14,
+      "w": 0.156,
+      "h": 0.28,
+      "why": "NOT CORN — see honesty note. There is no sweetcorn kernel anywhere in the nineteen sources. Recaption the chip NOODLE (麺) — the one ingredient this photography documents most heavily. This is the airborne noodle ribbon from exploded bowl v3: glossy wavy strands lit warm against near-black, 429x430 native. MOVED off img_12 (the scout's noodle coil sat inside the ing-08 rectangle) and off img_11, which now carries ing-03 NOODLE, so the chip and the grid cell are different photographs."
+    },
+    {
+      "target": "toppings/narutomaki.jpg",
+      "source": "img_10",
+      "x": 0.2028,
+      "y": 0.3828,
+      "w": 0.1017,
+      "h": 0.1823,
+      "why": "NOT NARUTOMAKI — see honesty note. No fishcake exists in any source; the only white-and-orange discs are ajitama halves, and passing an egg off as narutomaki is exactly the lookalike substitution to avoid. Recaption the chip BROTH (スープ). RE-FRAMED twice. The first pass put a chashu slice in 40% of the tile; the second pulled left into empty background and the chip read as a thin thread on black (51% of the rendered tile below luma 25). This 280x280 box at (558,588) is the densest liquid in the whole left splash — a search over every square in the splash zone puts it at 41% of pixels above luma 100 and mean luma 111, against 29%/87 for the version it replaces. It is a macro of the glossy amber ribbon itself, filling the tile corner to corner, and it stops just short of the chashu that begins at x 812. 1.43x upscale into the 400px tile, which a soft liquid subject carries. Does not overlap the noodle chip taken from the same frame."
+    },
+    {
+      "target": "toppings/chili-oil.jpg",
+      "source": "img_08",
+      "x": 0.4435,
+      "y": 0.724,
+      "w": 0.145,
+      "h": 0.26,
+      "why": "NOT CHILLI OIL — see honesty note. No rayu, no chilli flake, no red slick, no condiment jar anywhere; the reddish patches on the img_08 broth are rendered fat and reduced fond at 1:1. Recaption the chip OPEN FLAME (直火). This is the twin gas burner under the wide pan — measured flame band x 0.387-0.644, y 0.803-0.905 — with the pan's dark underside above it and the flame's reflection in the wet counter below. MOVED off img_01, where the same idea rendered as a near-black tile (p95 31): that burner is a 326x84px sliver and no square tile around it is anything but darkness. img_08's fire is 707x157px and bright enough to read as fire at 44px. It shares img_08 with ing-06, which has been re-framed onto the broth surface and steam above y 0.80 so that the cell and this chip never show the same thing."
+    },
+    {
+      "target": "ingredients/ing-01.jpg",
+      "source": "img_01",
+      "x": 0.33,
+      "y": 0.14,
+      "w": 0.56,
+      "h": 0.63,
+      "why": "BONE STOCK. The tall pot of milky, rolling pork-bone broth: the top ~48% of the cell is steam, the broth surface (measured y 0.457-0.503) sits just below centre, scratched steel and the dark aisle as surround. The blurred cook and the copper lamp are cropped out so the pot alone carries the cell. Shares img_01 with video/simmer-01 — the accepted tight-vs-wide exception: this is a 4:3 cell of the pot with no room in it, simmer-01 is a 16:9 push-in that keeps the cook, the lamp and the burner. Bottom edge at 0.77 also keeps the flame out, which is what makes the OPEN FLAME chip a separate subject."
+    },
+    {
+      "target": "ingredients/ing-02.jpg",
+      "source": "img_05",
+      "x": 0.04,
+      "y": 0.1,
+      "w": 0.867,
+      "h": 0.65,
+      "why": "CHASHU. Three lacquered belly slices on wet charred slate, running diagonally with the charred rims and fat spirals fully readable; two lantern bokeh orbs sit in the top band and the third slice stays uncut. Sole occupant of img_05 now that the chashu chip has moved to img_11, so the grid cell and the chip are different photographs. Bottom edge at 0.75 stops above the sparkle at (0.88, 0.885)."
+    },
+    {
+      "target": "ingredients/ing-03.jpg",
+      "source": "img_11",
+      "x": 0.29,
+      "y": 0.03,
+      "w": 0.46,
+      "h": 0.618,
+      "why": "NOODLE. MOVED off img_02, which the scout had feeding both this cell and the bowls/mala card from overlapping rectangles. img_11 is the set's other noodle-lift and it is a better one for a grid cell: chopsticks pulling a curtain of glossy wavy noodles up the frame, steam behind, filament bokeh top-right, the bowl rim and broth anchoring the bottom third as dark mass. Native 1266x949 into 1200x900. Sparkle at (0.915, 0.843) is outside the rectangle."
+    },
+    {
+      "target": "ingredients/ing-04.jpg",
+      "source": "img_06",
+      "x": 0.267,
+      "y": 0.4555,
+      "w": 0.233,
+      "h": 0.313,
+      "why": "AJITAMA. RE-FRAMED after review: the old rectangle gave the egg only ~6% of the tile and let the full-height airborne noodle spiral dominate the right, so the cell read as a second NOODLE shot and duplicated ing-03. This 641x481 box (x 735-1376, y 700-1181 native) is a macro of the lower-left floating egg half alone: the white and the glossy orange yolk fill the middle half of the frame, the yolk sits on the tile centre, and the noodle column is reduced to a soft accent down the right edge with a small nori corner top-left. Different photograph from the ajitama chip (img_09)."
+    },
+    {
+      "target": "ingredients/ing-05.jpg",
+      "source": "img_14",
+      "x": 0.3145,
+      "y": 0.3827,
+      "w": 0.3305,
+      "h": 0.1997,
+      "why": "SCALLION. RE-FRAMED after review: the old rectangle was a generic bowl quadrant — green was 4.6% of the tile while two chashu slices took 36% and a whole ajitama held the right third, duplicating ing-02 and ing-04. This 613x460 box (x 584-1197, y 882-1342 native) is the mound itself: the curled green onion runs nearly the full height of the frame and its centre sits at 55% of the width, one chashu slice closes the left edge and only the rim of the ajitama shows at the right. By a wide margin the largest and most saturated green in the set. Keeps img_14's green for the big 1200x900 cell while the 44px chip takes img_12's smaller mound, so the two are different photographs."
+    },
+    {
+      "target": "ingredients/ing-06.jpg",
+      "source": "img_08",
+      "x": 0.294,
+      "y": 0.3,
+      "w": 0.372,
+      "h": 0.5,
+      "why": "NOT CORN — see honesty note. The cell is now captioned THE SIMMER / 煮込み in src/data/content.ts; there is no corn kernel in any of the 19 sources, so the caption moved to what the photograph actually shows rather than the crop moving to a lookalike. RE-FRAMED twice before that: the scout's near-full-frame rectangle was the same picture as video/simmer-02 from this source, and a pan-and-flame close-up then collided with the OPEN FLAME chip. This crop is the broth and the steam only — the rolling amber surface with its fat slicks and bubbles across the lower half (surface measured y 0.53-0.78), the column of steam rising out of it, the dark kitchen behind. It stops at y 0.80, above the burners, so the flames belong to the chip alone. Native 1024x768, a true 4:3, nothing clipped. Sparkle is outside on x."
+    },
+    {
+      "target": "ingredients/ing-07.jpg",
+      "source": "img_16",
+      "x": 0.16,
+      "y": 0.48,
+      "w": 0.74,
+      "h": 0.372,
+      "why": "NOT CHILLI OIL — see honesty note. The cell is now captioned THE STRAIN / 麺上げ in src/data/content.ts; the only saturated red in the 19 sources is paper lanterns and neon in the street frames, and the reddish patches on img_08's broth are rendered fat at 1:1, so the caption moved rather than the crop reaching for a lookalike. MOVED off img_19, where the scout's rectangle was all but identical to video/craft-01's from the same photo. img_16 is the set's other strain and it was unused: a hand lifting the wire noodle basket clear of the pot, water raining off it in ropes, lit by the cone of a heat lamp. TIGHTENED after the first render — a full-width band left the basket small in a lot of dark room, so this pulls in to x 0.16-0.90, y 0.48-0.852, which sizes the basket and the forearm properly and keeps the pot rim closing the bottom. 1253x940 native, a true 4:3. It also lifts the crop clear of the sparkle at (0.86, 0.903), so no delogo is needed here."
+    },
+    {
+      "target": "ingredients/ing-08.jpg",
+      "source": "img_12",
+      "x": 0.455,
+      "y": 0.415,
+      "w": 0.312,
+      "h": 0.4193,
+      "why": "MENMA. The only unambiguous bamboo shoot in the nineteen photographs — three tan fibrous batons with visible grain lying across the broth, the largest sharp mass in the crop, sitting centre-right. Noodle coil fills the lower left, the scallion mound and the base of the ajitama edge in at the top, the bowl's dark rim and the wood close the right. Shares its subject with the menma chip because the photography leaves no alternative (see that entry); at 858x644 native this cell is 5x wider than the 370px chip, so they read as a detail and a context shot, not as a duplicate."
+    },
+    {
+      "target": "ingredients/ing-09.jpg",
+      "source": "img_17",
+      "x": 0.485,
+      "y": 0.332,
+      "w": 0.28,
+      "h": 0.376,
+      "why": "NORI. The rectangular sheet standing at the bowl's edge, rim-lit gold against the chef's dark jacket. TIGHTENED from the scout's rectangle: measured sheet bounds are x 0.594-0.656, y 0.431-0.613, which filled only 15% of their frame — at this framing it fills ~22% of the width and half the height and is unarguably the subject, with the chashu and pale broth below it and the bar bokeh falling off dark on the right. Shares img_17 with story/era-03, which is a wide room shot at 3x the framing; this is the macro. Sparkle is outside."
+    },
+    {
+      "target": "story/era-01.jpg",
+      "source": "img_07",
+      "x": 0.1,
+      "y": 0.03,
+      "w": 0.7,
+      "h": 0.855,
+      "why": "1910 RAIRAIKEN. The quietest, darkest frame in the set: a tunnel of red Chinese lanterns receding over wet cobbles, two lone silhouettes, steam drifting from a stall on the left. Chinese-lantern alley is the right note for the Chinese-cook origin of the first shop, and it is the lowest-key of the four so the timeline brightens as it advances. The window is shifted left of the photograph's true centre so the vanishing point and the walking figure land in the right third and the black shopfront wall holds the left edge. Lantern rows uncut on both sides, feet inside the bottom edge, right edge at 0.80 leaves the sparkle outside."
+    },
+    {
+      "target": "story/era-02.jpg",
+      "source": "img_13",
+      "x": 0.1,
+      "y": 0.02,
+      "w": 0.76,
+      "h": 0.928,
+      "why": "1945 THE BLACK MARKET. A crowded wet night street — motion-blurred people streaming both ways under hanging lanterns, steam at the left, light trails on the road. It is the only frame in the set that reads as market bustle rather than a single subject. The photograph is deliberately frontal and symmetric, so it is kept near full-frame rather than sliced off-centre, nudged left so the gate sits just right of centre with the densest crowd on the right. Top at 0.02 keeps the roof ornaments, bottom at 0.948 keeps the nearest figures' feet, right edge at 0.86 clears the sparkle. One step brighter than era-01."
+    },
+    {
+      "target": "story/era-03.jpg",
+      "source": "img_17",
+      "x": 0.02,
+      "y": 0.02,
+      "w": 0.72,
+      "h": 0.86,
+      "why": "NOT INSTANT RAMEN — see honesty note. No packaged brick, cellophane, cup noodle, factory line or shop shelf exists in any source, so a 1958 INSTANT caption cannot be carried by this photography. Recaption this plate THE SHOP (or 1958 THE COUNTER): an owner-chef holding a steaming bowl out across a wet counter in a lamp-lit bar, hanging bulbs receding behind him. Pushed hard left so the golden lamp and blurred back-kitchen fill the left third and the bowl lands at ~0.68 across; his outstretched hand ends well inside the right edge and the counter foreground keeps the depth. Brighter and warmer than era-02, still dimmer than the neon street. Shares img_17 with ing-09 NORI, which is a 3x tighter macro of the nori in that same bowl. Sparkle outside x=0.74."
+    },
+    {
+      "target": "story/era-04.jpg",
+      "source": "img_15",
+      "x": 0.02,
+      "y": 0.05,
+      "w": 0.66,
+      "h": 0.806,
+      "why": "1994 THE MUSEUM. The brightest, most neon frame: stacked ラーメン and 居酒屋 signs down the left and centre, a lit sandwich board on the pavement, red and white light trails burning across wet asphalt. Ending at x 0.68 stops just short of the right-hand sign column so no sign is sliced by the edge, keeps the trail burst and the dark far end of the street as breathing room, and leaves the sparkle well outside. Correct terminal note for the timeline: loudest and most neon of the four."
+    },
+    {
+      "target": "video/simmer-01.mp4",
+      "source": "img_01",
+      "x": 0.02,
+      "y": 0.1,
+      "w": 0.94,
+      "h": 0.793,
+      "focus": [
+        0.63,
+        0.42
+      ],
+      "why": "The bone-stock pot: creamy broth at a rolling simmer, blue gas ring and orange flame at the base, a steam column climbing the right half, the blurred cook walking the line at left for scale. This is the one photograph that literally reads 'hours of broth', which is what a big hour counter needs to sit on. img_01 is only 1536x1024 and the pot spans y 0.43-0.80 while the plume runs to the top edge, so a 16:9 slice cannot hold both the plume and the burner without using nearly the full frame. Trimming the top 10% drops the ductwork and leaves the copper lamp bell as a warm corner accent; the bottom stops at 0.893, just under the flames. Pot centre lands at 0.62 of the frame, leaving the dark wet floor and the figure as the quiet left third for type. Push-in holds the broth surface at (0.63, 0.42)."
+    },
+    {
+      "target": "video/simmer-02.mp4",
+      "source": "img_08",
+      "x": 0.02,
+      "y": 0.06,
+      "w": 0.86,
+      "h": 0.867,
+      "focus": [
+        0.55,
+        0.55
+      ],
+      "why": "Second simmer beat, deliberately a different pot and a different shape: a wide shallow pan of dark chilli-flecked broth boiling over two open burners, one huge steam plume dead centre, a second flame flaring behind, a chef silhouetted in the cold blue haze at right. Almost the entire surround is black, so type and a big number sit on it easily. The crop drops the right-hand shelving and the sparkle (whose box starts at x 0.888), and trims the top of the plume, which dissipates anyway; the bottom holds at 0.927 to keep the full burner flames. Pan centre lands at 0.57, balanced by the chopsticks at lower left. Shares img_08 with ing-06, which is now a tight pan-and-flame close-up rather than this same wide frame. Push-in target (0.55, 0.55)."
+    },
+    {
+      "target": "video/craft-01.mp4",
+      "source": "img_19",
+      "x": 0.03,
+      "y": 0.085,
+      "w": 0.86,
+      "h": 0.867,
+      "focus": [
+        0.47,
+        0.45
+      ],
+      "why": "THE SHAKE (湯切り) — the action itself, not a stand-in: a mesh basket tipped over the pot with hot water streaming off it in visible ropes, backlit by a wall of steam, the cook's forearm entering from frame right. Chosen over img_16 because img_16 is 1696x2528 portrait, where a 16:9 band is a 0.38-tall sliver that loses the heat lamp (img_16 now carries ing-07 instead, where a horizontal band works). Right edge pulled to 0.89 so the sparkle box at 0.888-0.942 stays outside; bottom at 0.952 lets the pot run off the edge as it does in the original. Lower third stays quiet for overlays: dark counter left, dark torso and pot handle right, only the drips in the centre. Push-in target (0.47, 0.45)."
+    },
+    {
+      "target": "video/craft-02.mp4",
+      "source": "img_18",
+      "x": 0.03,
+      "y": 0.058,
+      "w": 0.838,
+      "h": 0.845,
+      "focus": [
+        0.42,
+        0.55
+      ],
+      "why": "THE SEAR (炙り): a row of chashu with blackened blistered edges and glaze still running, raked by hot light, a flame flare behind the row and three lamps bokeh'd above. Chosen over img_05, which is a square styled ingredient plate — a 16:9 band from it reads as product, not craft. Near-full height is needed to keep the lamps at the top and the front slice's bottom edge; y starts at 0.058 so a strip of dark tray sits under the front slice instead of grounding it on the frame edge. Right edge 0.868 clears the sparkle. Both lower corners are bare dark tray, so the title and number land clean. Push-in target (0.42, 0.55), into the glaze."
+    },
+    {
+      "target": "video/craft-03.mp4",
+      "source": "img_04",
+      "x": 0.0,
+      "y": 0.0195,
+      "w": 0.8855,
+      "h": 0.8926,
+      "focus": [
+        0.56,
+        0.72
+      ],
+      "why": "THE PLATE (盛り付け) — the literal act: the chef leaning in with long chopsticks, laying chashu onto a finished bowl, steam coming off it. img_17 is the same chef presenting a finished bowl to camera, which is serving rather than plating, and img_12 is a static top-down with no hands in it; only img_04 shows arranging. RE-FRAMED after review: the two anchors were re-measured off the native file rather than estimated — the chef's hair crown is at source y≈46 (not 0.067) and the bowl's foot bottom at y≈1388 (not 0.824). They span 1342px, and the widest 16:9 window that stops short of the sparkle (its box starts at x 2437) is 2437x1371, so the rectangle now starts hard at x 0 to buy every pixel of height available and sits at y 30-1401: ~16px of headroom above the hair and ~13px of wet counter under the foot, both anchors inside the frame instead of shaved by it. Right edge 0.885 still drops the extractor-hood clutter and the sparkle — no delogo — and the left edge keeps the hanging filament bulbs and the lit steam wall. Chef and bowl land at ~0.54 of the width. Push-in target (0.56, 0.72), into the bowl."
+    }
+  ]
+}

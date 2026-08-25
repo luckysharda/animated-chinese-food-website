@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "assets": "node scripts/gen-assets.mjs",
-    "hero": "node scripts/hero-from-video.mjs"
+    "hero": "node scripts/hero-from-video.mjs",
+    "place-images": "node scripts/place-images.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
