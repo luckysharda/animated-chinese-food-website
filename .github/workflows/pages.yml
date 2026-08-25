@@ -64,6 +64,18 @@ jobs:
             echo "::error::Files above the 25MB per-file limit:"; echo "$big"; exit 1
           fi
 
+      # `wrangler pages deploy` cannot create a project non-interactively: if the
+      # project does not exist yet it tries to prompt, and the job dies with a
+      # confusing error. Creating it first is idempotent — the second and every
+      # later run just reports that it already exists.
+      - name: Ensure the Pages project exists
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create umami-ramen --production-branch=main
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
