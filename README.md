@@ -57,39 +57,55 @@ npx tsc --noEmit    # typecheck
 
 ### The hero is real footage
 
-`assets-src/hero-source.mp4` is a 10s, 24fps clip of a chef building a bowl. It is
-exploded into the hero's scrub sequence by `npm run hero`:
+`assets-src/hero-source.mp4` is an 8.5s, 30fps, 1920×1080 clip of a chef building a
+bowl. It is exploded into the hero's scrub sequence by `npm run hero`:
 
 ```
 npm run hero                       # rebuild from assets-src/hero-source.mp4
 npm run hero -- /path/to/clip.mp4  # or from any other clip
+npm run hero -- clip.mp4 --no-delogo   # …one with no generator watermark
 ```
 
-That script does three things worth knowing about:
+That script does four things worth knowing about:
 
+- **120 frames, whatever the clip's length.** `HeroCanvas` indexes 1…120 and `Hero`
+  maps the whole pin onto that range, so the frame count is fixed and the SAMPLING
+  RATE is derived from the source's own duration (`ffprobe` → `fps = 120 / D`).
+  Swapping in a clip of any length still yields exactly 120 frames spanning it.
 - **Watermark removal.** The generator that produced the clip stamps a stationary
   four-point sparkle in the lower right. `delogo` interpolates it away from the box
-  border, which is invisible against the dark stone behind it. It runs at source
-  resolution, before any scaling.
+  border — invisible over the dark stone that is behind it for two thirds of the
+  clip, and a soft patch that reads as shallow depth of field over the counter in
+  the opening seconds. It runs at source resolution, before any scaling. The box is
+  measured, not assumed: the sparkle sits at a fixed fraction of the frame
+  (0.909W, 0.833H) on both this clip and the 1280×720 one the hero shipped with
+  first, so the position is derived from the probed dimensions.
 - **A grade.** The footage is lit brighter than this site is. The brief is a cold
   room with a single warm pool on the food, so the grade pulls the midtones down,
   pushes a little blue into the shadows, and leaves the highlights on the bowl
-  alone. Measured: median luminance 44–95 → 12–45, with p95 held around 150.
-- **120 frames at 1600×900**, JPEG q6 — about 84KB each, 10.3MB for the set. q6 is
+  alone. Measured: mean luminance 54–100 → 19–57, with p95 held around 150.
+- **120 frames at 1600×900**, JPEG q6 — about 84KB each, 10.4MB for the set. q6 is
   indistinguishable from q4 at 2× zoom on this footage and 22% smaller.
 
-**The cut points are real.** ffmpeg's scene filter puts them at p 0.163 / 0.304 /
-0.446 / 0.754, and the caption deck's blank windows are tuned so that every cut
-lands while the left gutter is empty. The last cut, at 0.754, is the clip's own
-exploded-view shot — chashu, ajitama, nori, a noodle nest and broth droplets
-suspended over the bowl. That is the hero's climax, and it is why the three.js
-bowl is off by default (see `WEBGL_CLIMAX` in `src/components/hero/config.ts`).
+**The cut points are real.** ffmpeg's scene filter, confirmed frame by frame, puts
+the five setups at p 0 / 0.151 / 0.319 / 0.563 / 0.613 — the chef at the stove, the
+finished bowl overhead on wet stone, the chef presenting it to camera, the bowl
+lifting free as the kitchen dissolves to black, and then the exploded view. They are
+recorded in `hero.cuts` in `src/data/content.ts`, and the caption deck's blank
+windows are tuned so that no cut ever lands under a card that is mid-read.
+
+The last one matters most. The clip's own exploded-view shot — chashu, ajitama,
+nori, a noodle nest and broth droplets suspended over the bowl — starts at 0.613 and
+runs to the end, so the gutter's block fade was pulled back to 0.545 → 0.585 to
+empty the stage before it rather than during it. The last 41% of the pin is that
+shot, wordless. It is also why the three.js bowl is off by default (see
+`WEBGL_CLIMAX` in `src/components/hero/config.ts`).
 
 **Payload by environment**, verified in headless Chrome:
 
 | | frames fetched | approx |
 |---|---|---|
-| desktop | 120 | 10.3MB |
+| desktop | 120 | 10.4MB |
 | narrow (<768px) | 31 | ~2.6MB — every 4th frame, plus the final one |
 | `prefers-reduced-motion` | 1 | 84KB — the end state, no scrub built |
 

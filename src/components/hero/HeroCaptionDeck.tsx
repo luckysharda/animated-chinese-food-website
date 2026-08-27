@@ -4,17 +4,24 @@
  * HeroCaptionDeck — the LEFT instrument gutter.
  *
  * A deck of three cards played against the scrub as FOUR states with real gaps
- * between them:
+ * between them. The windows themselves live in `hero.cards` in
+ * src/data/content.ts; this is what they currently spell out:
  *
- *   0.00 → 0.07   A   the 旨味 / 拉麵 lockup
- *   0.07 → 0.10       blank — the gutter is completely empty
- *   0.10 → 0.29   B   the dossier: a specimen sheet, spec table and all
- *   0.29 → 0.35       blank
- *   0.35 → 0.55   C   structurally different: an inline numeral, its own live
- *                     STEAM RATE readout, no temperature, no table
- *   0.55 → 0.58       blank
- *   0.58 → 0.74   B'  the dossier returns, temperature already clamped at 92
- *   0.74 → 0.78       the WHOLE gutter fades out as one block and stays empty
+ *   0.000 → 0.145  A   the 旨味 / 拉麵 lockup
+ *   0.145 → 0.185      blank — the gutter is completely empty
+ *   0.185 → 0.285  B   the dossier: a specimen sheet, spec table and all
+ *   0.285 → 0.325      blank
+ *   0.325 → 0.428  C   structurally different: an inline numeral, its own live
+ *                      STEAM RATE readout, no temperature, no table
+ *   0.428 → 0.468      blank
+ *   0.468 → 0.545  B'  the dossier returns, temperature already clamped at 92
+ *   0.545 → 0.585      the WHOLE gutter fades out as one block and stays empty
+ *
+ * Those blanks are not arbitrary: each one straddles a cut in the hero footage
+ * (`hero.cuts`, same file), so the picture never changes under a card that is
+ * mid-read. The last one is the important one — the footage's bowl lifts free
+ * at 0.563 and bursts at 0.613, so the gutter is emptied before the climax
+ * rather than during it.
  *
  * Two things make this read as an instrument rather than a slideshow:
  *
@@ -24,7 +31,7 @@
  *   2. Card changes ALWAYS pass through zero. The outgoing card is taken to 0
  *      and the incoming one is held back until the full 300ms has elapsed, so a
  *      fast scrub can never cross-dissolve two cards into a smear. The blank
- *      windows above are real: at 0.08 the gutter is genuinely empty.
+ *      windows above are real: at 0.16 the gutter is genuinely empty.
  *
  * B and B' are the same DOM node — a reprise is the same sheet coming back, not
  * a copy of it, and that is also why its temperature is already at 92.
@@ -45,9 +52,14 @@ export interface HeroCaptionDeckHandle {
 
 const [lockup, dossier, steamCard, reprise] = hero.cards;
 
-/** The whole gutter leaves as one block, and the climax is played with it empty. */
-const BLOCK_FADE_FROM = 0.74;
-const BLOCK_FADE_TO = 0.78;
+/**
+ * The whole gutter leaves as one block, and the climax is played with it empty.
+ * Tied to the footage: the fade straddles the 0.563 cut where the bowl lifts
+ * free of the kitchen, and is finished well before the burst at 0.613 — so the
+ * last 41% of the pin is the exploded view, wordless.
+ */
+const BLOCK_FADE_FROM = 0.545;
+const BLOCK_FADE_TO = 0.585;
 /** Opacity-only, and it always passes through zero on the way. */
 const FADE_MS = 300;
 

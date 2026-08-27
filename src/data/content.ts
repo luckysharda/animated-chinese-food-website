@@ -88,21 +88,23 @@ export const hero = {
     {
       id: "dossier-reprise",
       from: 0.468,
-      to: 0.74,
+      to: 0.545,
       reprise: "dossier",
     },
   ],
   /**
    * The real cut points in assets-src/hero-source.mp4, detected with ffmpeg's
-   * scene filter, expressed as hero progress. Five setups:
-   *   0.000  hands placing chashu into the bowl
-   *   0.163  the chef at the stove, steam off the pot
-   *   0.304  beauty shot, the finished bowl on wet stone
-   *   0.446  hands presenting the bowl to camera
-   *   0.754  the exploded view — the climax is in the footage
-   * Every one of these lands while the caption deck is in a blank window.
+   * scene filter and confirmed frame by frame, expressed as hero progress.
+   * Five setups:
+   *   0.000  the chef at the stove, chopsticks in the pot, steam off the water
+   *   0.151  the finished bowl overhead on wet stone, a hand dressing it
+   *   0.319  the chef presenting the bowl to camera
+   *   0.563  the bowl lifts free and the kitchen dissolves to black
+   *   0.613  the exploded view — the climax is in the footage
+   * Every one of these lands while the caption deck is in a blank window, or —
+   * for 0.563 — inside the block fade that empties the gutter for the climax.
    */
-  cuts: [0, 0.163, 0.304, 0.446, 0.754],
+  cuts: [0, 0.151, 0.319, 0.563, 0.613],
   instrument: {
     leftPill: "SCRUB ACTIVE",
     rightGroups: ["TEMP", "STEAM", "CH", "FRAME"],

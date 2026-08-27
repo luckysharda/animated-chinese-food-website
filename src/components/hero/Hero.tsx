@@ -24,12 +24,18 @@
  *
  * REDUCED MOTION
  *   The scrub is never built; `useScrollScrub` writes one static progress and
- *   stops. It is deliberately 0.62 rather than 1: at 1 the left gutter has faded
+ *   stops. It is deliberately 0.52 rather than 1: at 1 the left gutter has faded
  *   for the climax and the hero is, correctly, almost wordless — an end state
- *   that is right as a destination and useless as a still. 0.62 is the last
- *   progress at which every element is stating its facts: the plate on its final
- *   frame, the dossier open with the temperature clamped at 92, the ruler and
- *   the readouts live. That is the still this hero should print as.
+ *   that is right as a destination and useless as a still. 0.52 sits inside the
+ *   dossier's reprise, the last window in which every element is stating its
+ *   facts: the dossier open with the temperature clamped at 92, the steam rate
+ *   at its ceiling, the ruler and the readouts live. HeroCanvas ignores this
+ *   value and paints the LAST frame regardless, so the still is the exploded
+ *   view with the sheet open beside it. That is the still this hero prints as.
+ *
+ *   It moves with the footage: it must land before the gutter's block fade
+ *   (0.545 → 0.585 in HeroCaptionDeck), which in turn is pinned to the clip's
+ *   own cut into the climax.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -142,7 +148,7 @@ export default function Hero(): React.ReactElement {
     [applyBowlVisibility],
   );
 
-  useScrollScrub(trackRef, onUpdate, { scrub: 0.6, reducedProgress: 0.62 });
+  useScrollScrub(trackRef, onUpdate, { scrub: 0.6, reducedProgress: 0.52 });
 
   /**
    * Stop paying for the WebGL layer once the hero is not on screen. Doing this
