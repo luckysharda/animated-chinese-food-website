@@ -62,6 +62,120 @@ single file crosses the per-file limit.
 
 ---
 
+## Putting it on your own domain
+
+The site is born at `umami-ramen.pages.dev`. Everything below moves it to a domain you
+own. Substitute your domain for `example.com` throughout.
+
+### Read this first: the apex problem
+
+A bare domain — `example.com`, no subdomain — **cannot hold a `CNAME` record**. The DNS
+spec forbids it, because the apex must also carry `SOA` and `NS` records and a `CNAME` is
+required to be the only record at its name. Cloudflare Pages is reached *by* CNAME.
+
+Cloudflare works around this with **CNAME flattening**: it stores a CNAME at the apex and
+answers queries with the resolved `A` records instead. That only works when **Cloudflare
+is running your DNS**. Most registrars cannot do it at all — Route 53's `ALIAS` only points
+at AWS resources, and GoDaddy and Namecheap have no apex equivalent.
+
+So there are two honest options, and the first one is much better:
+
+| | Apex works? | Effort |
+|---|---|---|
+| **A. Move nameservers to Cloudflare** | yes | ~10 min, then wait for propagation |
+| **B. Keep DNS at your registrar** | no — `www` only | ~5 min |
+
+### Option A — move nameservers to Cloudflare (recommended)
+
+> **Before you start: this moves *all* DNS for the domain, not just the website.**
+> If you receive email at this domain, its `MX` records — and the `TXT` records for SPF,
+> DKIM and DMARC — must come across too, or **mail stops arriving**. Cloudflare's importer
+> usually catches them, but it scans public DNS and can miss records. Check the imported
+> list against your registrar's zone *before* you change the nameservers, and screenshot
+> the old zone. This is the single most common way this procedure hurts.
+
+1. **Cloudflare dashboard → Add a site.** Enter `example.com`, choose the **Free** plan.
+2. Cloudflare scans your existing DNS and shows what it found. **Verify every record** —
+   especially `MX` and any `TXT` starting `v=spf1` or `v=DMARC1`. Add anything missing by
+   hand now.
+3. Cloudflare shows you two nameservers, e.g. `ana.ns.cloudflare.com` and
+   `bob.ns.cloudflare.com`.
+4. **At your registrar**, replace the existing nameservers with those two. The setting is
+   usually under "Nameservers", "DNS Management" or "Domain settings".
+5. Wait. Cloudflare emails you when the zone goes **Active** — typically minutes, but the
+   registrar's TTL can stretch it to 24–48h. Check with `dig +short NS example.com`.
+6. Once Active: **Workers & Pages → umami-ramen → Custom domains → Set up a custom
+   domain.** Enter `example.com`. Cloudflare creates the flattened CNAME itself.
+7. Add `www.example.com` the same way, as a second custom domain.
+8. TLS certificates issue automatically, usually inside a minute. Until they do you will
+   briefly see a certificate warning — that is expected, not a misconfiguration.
+
+**The www → apex redirect.** Step 7 makes `www` serve the site rather than redirect to it,
+which means the same content on two hostnames. Fix it with **Rules → Redirect Rules →
+Create rule** on the Free plan:
+
+```
+When    Hostname  equals  www.example.com
+Then    Dynamic redirect
+        Expression   concat("https://example.com", http.request.uri.path)
+        Status       301
+        Preserve query string   on
+```
+
+### Option B — keep DNS at your registrar
+
+Only `www` can work. Do not fight the apex; you will lose.
+
+1. **Workers & Pages → umami-ramen → Custom domains → Set up a custom domain**, enter
+   `www.example.com`. Cloudflare tells you the record it wants.
+2. At your registrar, create it:
+
+   ```
+   Type    CNAME
+   Name    www
+   Value   umami-ramen.pages.dev
+   TTL     automatic / 300
+   ```
+3. For the apex, use whatever forwarding your registrar offers — most have a "domain
+   forwarding" or "redirect" feature. Point `example.com` → `https://www.example.com`,
+   permanent (301). Quality varies; some registrars break HTTPS on the apex entirely.
+
+### Verifying it, from a terminal
+
+```bash
+dig +short NS example.com           # Option A: should be *.ns.cloudflare.com
+dig +short example.com              # should resolve to Cloudflare IPs
+dig +short www.example.com          # CNAME chain ending at pages.dev
+curl -sI https://example.com | head -3
+curl -sI https://www.example.com | head -3   # expect 301 to the apex
+
+# the real test — is it actually serving this build?
+curl -s https://example.com/hero/sequence/frame_0075.jpg -o /tmp/live.jpg
+cmp /tmp/live.jpg public/hero/sequence/frame_0075.jpg && echo "byte-identical"
+```
+
+### The one repo change
+
+`src/app/layout.tsx` needs `metadataBase` set to the live origin. Without it Next resolves
+Open Graph and Twitter image URLs **relative**, so link previews break wherever the site is
+shared. It is one line, and it is the only code that has to know the domain:
+
+```ts
+export const metadata: Metadata = {
+  metadataBase: new URL("https://example.com"),
+  // …
+};
+```
+
+### What does *not* change
+
+Nothing about the pipeline. A custom domain is a routing decision made on Cloudflare's
+side, in front of the deployment. `pages.yml`, `wrangler.toml` and the build are all
+untouched, every previous deployment keeps its immutable `*.pages.dev` URL, and rollback
+still works exactly as before.
+
+---
+
 ## Docker
 
 The repo is public, so the published image is **anonymously pullable** — no login, no PAT.
