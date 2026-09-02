@@ -64,8 +64,13 @@ single file crosses the per-file limit.
 
 ## Putting it on your own domain
 
-The site is born at `umami-ramen.pages.dev`. Everything below moves it to a domain you
-own. Substitute your domain for `example.com` throughout.
+**Live origin: [https://www.ramenanimationapp.rocks](https://www.ramenanimationapp.rocks).**
+www is canonical. The apex (`ramenanimationapp.rocks`) 301s onto it. Cloudflare Pages
+(`umami-ramen.pages.dev`) is still the deploy target — the custom domain is a CNAME
+in front of that project, not a second host.
+
+The rest of this section is how that was attached. Substitute another domain for
+`ramenanimationapp.rocks` if you ever move it.
 
 ### Read this first: the apex problem
 
@@ -105,19 +110,20 @@ So there are two honest options, and the first one is much better:
 5. Wait. Cloudflare emails you when the zone goes **Active** — typically minutes, but the
    registrar's TTL can stretch it to 24–48h. Check with `dig +short NS example.com`.
 6. Once Active: **Workers & Pages → umami-ramen → Custom domains → Set up a custom
-   domain.** Enter `example.com`. Cloudflare creates the flattened CNAME itself.
-7. Add `www.example.com` the same way, as a second custom domain.
+   domain.** Enter `www.ramenanimationapp.rocks` first — that is the public hostname.
+7. Add `ramenanimationapp.rocks` the same way, as a second custom domain. Cloudflare
+   creates the flattened apex CNAME itself and replaces any leftover parking A.
 8. TLS certificates issue automatically, usually inside a minute. Until they do you will
    briefly see a certificate warning — that is expected, not a misconfiguration.
 
-**The www → apex redirect.** Step 7 makes `www` serve the site rather than redirect to it,
-which means the same content on two hostnames. Fix it with **Rules → Redirect Rules →
-Create rule** on the Free plan:
+**The apex → www redirect.** This site's public hostname is `www`. Adding the apex
+as a second custom domain (step 7) would otherwise serve the same content on two
+hostnames. Fix it with **Rules → Redirect Rules → Create rule** on the Free plan:
 
 ```
-When    Hostname  equals  www.example.com
+When    Hostname  equals  ramenanimationapp.rocks
 Then    Dynamic redirect
-        Expression   concat("https://example.com", http.request.uri.path)
+        Expression   concat("https://www.ramenanimationapp.rocks", http.request.uri.path)
         Status       301
         Preserve query string   on
 ```
@@ -143,14 +149,14 @@ Only `www` can work. Do not fight the apex; you will lose.
 ### Verifying it, from a terminal
 
 ```bash
-dig +short NS example.com           # Option A: should be *.ns.cloudflare.com
-dig +short example.com              # should resolve to Cloudflare IPs
-dig +short www.example.com          # CNAME chain ending at pages.dev
-curl -sI https://example.com | head -3
-curl -sI https://www.example.com | head -3   # expect 301 to the apex
+dig +short NS ramenanimationapp.rocks           # Option A: should be *.ns.cloudflare.com
+dig +short ramenanimationapp.rocks              # should resolve to Cloudflare IPs
+dig +short www.ramenanimationapp.rocks          # CNAME chain ending at pages.dev
+curl -sI https://www.ramenanimationapp.rocks | head -3
+curl -sI https://ramenanimationapp.rocks | head -3   # expect 301 to www
 
 # the real test — is it actually serving this build?
-curl -s https://example.com/hero/sequence/frame_0075.jpg -o /tmp/live.jpg
+curl -s https://www.ramenanimationapp.rocks/hero/sequence/frame_0075.jpg -o /tmp/live.jpg
 cmp /tmp/live.jpg public/hero/sequence/frame_0075.jpg && echo "byte-identical"
 ```
 
@@ -162,7 +168,7 @@ shared. It is one line, and it is the only code that has to know the domain:
 
 ```ts
 export const metadata: Metadata = {
-  metadataBase: new URL("https://example.com"),
+  metadataBase: new URL("https://www.ramenanimationapp.rocks"),
   // …
 };
 ```

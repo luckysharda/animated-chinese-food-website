@@ -31,6 +31,10 @@ runtime. There is no `.glb`, no HDRI, no texture fetch.
 
 ## Running it
 
+Live: [www.ramenanimationapp.rocks](https://www.ramenanimationapp.rocks).
+`umami-ramen.pages.dev` is the Cloudflare Pages hostname the custom domain sits in
+front of, not the public URL.
+
 ```bash
 npm install
 npm run dev         # http://localhost:3000
