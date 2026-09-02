@@ -58,6 +58,24 @@ const pad2 = (n: number): string => (n < 10 ? `0${n}` : String(n));
 
 type Setter = (value: number) => void;
 
+/**
+ * Uniform scale via two axis setters. `quickSetter(el, "scale")` is not safe:
+ * GSAP aliases `scale` to the property name `"scaleX,scaleY"`, then
+ * `setAttribute("scaleX,scaleY")` — Safari throws
+ * `Invalid qualified name: 'scaleX,scaleY'` on the first scrub write, which
+ * is the layout-effect `write(0)` in useScrollScrub, so the page error
+ * boundary replaces the whole document. Two axis setters is the documented
+ * workaround (gsap.com/community/forums/topic/26650).
+ */
+const quickScale = (el: HTMLElement): Setter => {
+  const x = gsap.quickSetter(el, "scaleX") as Setter;
+  const y = gsap.quickSetter(el, "scaleY") as Setter;
+  return (v) => {
+    x(v);
+    y(v);
+  };
+};
+
 interface Setters {
   scaleA?: Setter;
   scaleB?: Setter;
@@ -100,9 +118,9 @@ export default function Simmer(): React.ReactElement {
     const counter = counterRef.current;
     const fill = fillRef.current;
 
-    if (a && !s.scaleA) s.scaleA = gsap.quickSetter(a, "scale") as Setter;
+    if (a && !s.scaleA) s.scaleA = quickScale(a);
     if (b && !s.scaleB) {
-      s.scaleB = gsap.quickSetter(b, "scale") as Setter;
+      s.scaleB = quickScale(b);
       s.fadeB = gsap.quickSetter(b, "opacity") as Setter;
     }
     if (title && !s.fadeTitle) {
